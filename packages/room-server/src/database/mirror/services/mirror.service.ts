@@ -63,7 +63,7 @@ export class MirrorService {
     const nodeRelInfo = await this.nodeService.getNodeRelInfo(mirrorId);
     const datasheetId = nodeRelInfo.datasheetId;
 
-    return this.datasheetService.fetchCommonDataPack('mirror', datasheetId, auth, origin, true, {
+    return this.datasheetService.fetchCommonDataPack('mirror', datasheetId, auth, origin, false, {
       recordIds,
       viewId:nodeRelInfo.viewId,
       metadataException: DatasheetException.DATASHEET_NOT_EXIST,
