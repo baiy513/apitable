@@ -115,6 +115,38 @@ export class DatasheetFieldHandler {
 
     const foreignDatasheetMap = globalParam.foreignDstMap;
     const combineResult: IForeignDatasheetMap & IDatasheetUnits = { foreignDatasheetMap };
+    for( const foreignDstId in foreignDatasheetMap){
+
+      const snapshot=foreignDatasheetMap[foreignDstId]?.snapshot;
+      //remove redundant data and column
+      if(snapshot&&snapshot.meta&&snapshot.meta.views){
+        const processedFldIds = [...Object.values(globalParam.dstIdToProcessedFldIdsMap[foreignDstId] || {})] as string[];
+        if(snapshot.meta.fieldMap!=null){
+          for (const key in snapshot.meta.fieldMap){
+            if(!processedFldIds.includes(key)){
+              for(const rid in snapshot.recordMap){
+                const record=snapshot.recordMap[rid];
+                delete record?.data[key];
+              }
+              delete snapshot.meta.fieldMap[key];
+            }
+          }
+        }
+        if(snapshot.meta.views.length>0){
+          snapshot.meta.views=snapshot.meta.views.slice(0,1);
+          snapshot.meta.views.forEach(view=>{
+            this.logger.info("view:"+view.id+" view columns:"+JSON.stringify(view.columns)
+                +" snapshot.meta.fieldMap"+JSON.stringify(snapshot.meta.fieldMap));
+            view.columns=view.columns.filter(column=>{
+              return snapshot.meta.fieldMap[column.fieldId]}
+            );
+            view.rows=[];
+          })
+        }
+
+      }
+    }
+
     // Get the space ID which the datasheet belongs to
     const spaceId = await this.getSpaceIdByDstId(mainDstId);
     let tempUnitMap: (IUnitValue | IUserValue)[] = [];

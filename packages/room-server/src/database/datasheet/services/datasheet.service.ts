@@ -121,10 +121,39 @@ export class DatasheetService {
     // Query snapshot
     const meta = await this.datasheetMetaService.getMetaDataByDstId(dstId, options?.metadataException);
     const fetchDataPackProfiler = this.logger.startTimer();
+
+    //let filterInfo=undefined;
+    if(options?.viewId) {
+      const view = meta.views.find(view => view.id === options?.viewId);
+      if (view) {
+        view.columns.forEach(column => {//如果本身是隐藏的，并且没有被其他列引用，那么删掉
+          if (column.hidden && meta && meta.fieldMap) {
+            const include = Object.values(meta.fieldMap).some(
+                (value) => {
+                  if (value && value.property && value.property.expression)
+                    return value.property.expression.includes(column.fieldId);
+                  return false;
+                }
+            );
+            if (!include) {
+              delete meta.fieldMap![column.fieldId];
+            }
+          }
+        })
+        view.columns = view.columns.filter(column => {
+          if (meta && meta.fieldMap) {
+            if (!meta.fieldMap[column.fieldId]) return false;
+          }
+          return true;
+        });
+        //filterInfo= view.filterInfo;
+      }
+    }
     const recordMap = options?.recordIds
-      ? await this.datasheetRecordService.getRecordsByDstIdAndRecordIds(dstId, options?.recordIds)
-      : await this.datasheetRecordService.getRecordsByDstId(dstId);
+        ? await this.datasheetRecordService.getRecordsByDstIdAndRecordIds(dstId, options?.recordIds)
+        : await this.datasheetRecordService.getRecordsByDstId(dstId);
     fetchDataPackProfiler.done({ message: `fetchDataPackProfiler ${dstId} done` });
+
     // Query foreignDatasheetMap and unitMap
     const combine = await this.processField(
       dstId,

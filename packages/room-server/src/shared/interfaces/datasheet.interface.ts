@@ -149,6 +149,10 @@ export interface IFetchDataPackOptions extends IFetchDataOptions {
   * `resourceIds` will contain the datasheet ID and foreign datasheet IDs.
   */
   isDatasheet?: boolean;
+  /**
+   viewId if not empty only query the view's datas and columns
+   */
+  viewId?:string;
 }
 
 /**
