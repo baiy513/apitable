@@ -59,10 +59,13 @@ export class MirrorService {
     recordIds?: string[],
   ): Promise<DatasheetPack | DatasheetPackResponse> {
     // Query info of referenced database and view
-    const datasheetId = await this.nodeService.getMainNodeId(mirrorId);
+
+    const nodeRelInfo = await this.nodeService.getNodeRelInfo(mirrorId);
+    const datasheetId = nodeRelInfo.datasheetId;
 
     return this.datasheetService.fetchCommonDataPack('mirror', datasheetId, auth, origin, true, {
       recordIds,
+      viewId:nodeRelInfo.viewId,
       metadataException: DatasheetException.DATASHEET_NOT_EXIST,
     });
   }
