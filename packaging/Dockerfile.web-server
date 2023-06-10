@@ -16,30 +16,36 @@ COPY packages/widget-sdk/package.json ./packages/widget-sdk/
 # datasheet main
 COPY packages/datasheet/package.json ./packages/datasheet/
 
-RUN yarn install
+RUN  yarn config set npmRegistryServer https://registry.npm.taobao.org
+
+RUN yarn workspaces focus @apitable/datasheet root
 
 # stage builder
-FROM apitable/nodepy:16.15.0-alpine AS builder
+FROM baiyx123/apitable:web-install AS builder
 
 ARG SEMVER_FULL="v0.0.0-alpha"
 ARG NEXT_ASSET_PREFIX=""
 ARG NEXT_PUBLIC_ASSET_PREFIX=""
 ENV SEMVER_FULL=${SEMVER_FULL}
 
+WORKDIR /workspace-install
 
-WORKDIR /app
-
-COPY --from=deps /workspace-install/node_modules ./node_modules
-COPY --from=deps /workspace-install/packages/datasheet/node_modules ./packages/datasheet/node_modules
+#COPY --from=deps /workspace-install/node_modules ./node_modules
+#COPY --from=deps /workspace-install/packages/datasheet/node_modules/ ./packages/datasheet/node_modules
+# COPY node_modules/ ./node_modules/
+# COPY packages/datasheet/node_modules/ ./packages/datasheet/node_modules/
 
 COPY .yarn ./.yarn
 COPY ./.yarnrc.yml ./package.json ./yarn.lock ./common-tsconfig.json ./tsconfig.json ./.eslintrc ./
 COPY packages/ ./packages/
 
-RUN set -eux; \
-    sed -i~ '$a\WEB_CLIENT_VERSION='${SEMVER_FULL}'' packages/datasheet/.env; \
-    sed -i~ 's~^NEXT_ASSET_PREFIX=.*~NEXT_ASSET_PREFIX='${NEXT_ASSET_PREFIX}'~' packages/datasheet/.env; \
-    sed -i~ 's~^NEXT_PUBLIC_ASSET_PREFIX=.*~NEXT_PUBLIC_ASSET_PREFIX='${NEXT_PUBLIC_ASSET_PREFIX}'~' packages/datasheet/.env
+RUN whoami
+
+
+    RUN set -eux; \
+        sed -i~ '$a\WEB_CLIENT_VERSION='${SEMVER_FULL}'' packages/datasheet/.env; \
+        sed -i~ 's~^NEXT_ASSET_PREFIX=.*~NEXT_ASSET_PREFIX='${NEXT_ASSET_PREFIX}'~' packages/datasheet/.env; \
+        sed -i~ 's~^NEXT_PUBLIC_ASSET_PREFIX=.*~NEXT_PUBLIC_ASSET_PREFIX='${NEXT_PUBLIC_ASSET_PREFIX}'~' packages/datasheet/.env
 
 RUN yarn build:dst
 
@@ -55,18 +61,18 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/.yarn ./.yarn
-COPY --from=builder /app/.yarnrc.yml /app/package.json /app/yarn.lock ./
-COPY --from=builder /app/packages/datasheet/public ./packages/datasheet/public
-COPY --from=builder /app/packages/datasheet/next.config.js \
-                    /app/packages/datasheet/font-weight-no-number.js \
-                    /app/packages/datasheet/package.json \
+COPY --from=builder /workspace-install/.yarn ./.yarn
+COPY --from=builder /workspace-install/.yarnrc.yml /workspace-install/package.json /workspace-install/yarn.lock ./
+COPY --from=builder /workspace-install/packages/datasheet/public ./packages/datasheet/public
+COPY --from=builder /workspace-install/packages/datasheet/next.config.js \
+                    /workspace-install/packages/datasheet/font-weight-no-number.js \
+                    /workspace-install/packages/datasheet/package.json \
                     ./packages/datasheet/
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/packages/datasheet/web_build/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/packages/datasheet/web_build/static ./packages/datasheet/web_build/static
+COPY --from=builder --chown=nextjs:nodejs /workspace-install/packages/datasheet/web_build/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /workspace-install/packages/datasheet/web_build/static ./packages/datasheet/web_build/static
 
 WORKDIR /app/packages/datasheet
 
