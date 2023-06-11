@@ -111,7 +111,7 @@ import {
   fetchDatasheetPack,
   fetchEmbedDatasheetPack,
   fetchEmbedForeignDatasheetPack,
-  fetchForeignDatasheetPack,
+  fetchForeignDatasheetPack, fetchForeignDatasheetViewPack,
   fetchShareDatasheetPack,
   fetchShareForeignDatasheetPack,
   fetchTemplateDatasheetPack,
@@ -331,7 +331,7 @@ export function fetchDatasheet(datasheetId: string, successCb?: () => void, over
  * in the expanded UI modal that select related records, request this api to get the related table's permission
  * no need to consider templates
  */
-export function fetchForeignDatasheet(resourceId: string, foreignDstId: string, forceFetch?: boolean) {
+export function fetchForeignDatasheet(resourceId: string, foreignDstId: string,viewId?:string, forceFetch?: boolean) {
   return (dispatch: any, getState: () => IReduxState) => {
     const state = getState();
     const foreignDatasheet = getDatasheet(state, foreignDstId);
@@ -343,6 +343,10 @@ export function fetchForeignDatasheet(resourceId: string, foreignDstId: string, 
     }
 
     let requestMethod = fetchForeignDatasheetPack;
+
+    if (viewId) {
+      requestMethod = () => fetchForeignDatasheetViewPack(resourceId, foreignDstId,viewId);
+    }
     if (shareId) {
       requestMethod = () => fetchShareForeignDatasheetPack(shareId, resourceId, foreignDstId);
     }

@@ -258,6 +258,7 @@ export class DatasheetService {
     auth: IAuthHeader,
     allowNative: boolean,
     shareId?: string,
+    viewId?:string,
   ): Promise<DatasheetPack | DatasheetPackResponse> {
     // Query datasheet meta
     const meta = await this.datasheetMetaService.getMetaDataByDstId(dstId);
@@ -275,6 +276,7 @@ export class DatasheetService {
     const origin = { internal: shareId ? false : true, main: false, shareId };
     return this.fetchCommonDataPack('linked datasheet', foreignDatasheetId, auth, origin, allowNative, {
       metadataException: DatasheetException.FOREIGN_DATASHEET_NOT_EXIST,
+      viewId:viewId,
       isDatasheet: true,
     });
   }

@@ -307,7 +307,10 @@ const SearchContentBase: React.ForwardRefRenderFunction<{ getFilteredRows(): { [
         return;
       }
       if (mirrorId && (!datasheetId || datasheetId === urlDsId)) {
-        dispatch(StoreActions.fetchForeignDatasheet(mirrorId, foreignDatasheet.id) as any);
+        if(field.property.limitToView)
+          dispatch(StoreActions.fetchForeignDatasheet(mirrorId, foreignDatasheet.id,field.property.limitToView) as any);
+        else
+          dispatch(StoreActions.fetchForeignDatasheet(mirrorId, foreignDatasheet.id) as any);
         return;
       }
 

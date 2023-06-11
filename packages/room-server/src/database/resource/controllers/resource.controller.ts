@@ -87,6 +87,21 @@ export class ResourceController {
     }
     return await this.changesetService.getChangesetList(resourceId, Number(query.resourceType), query.startRevision, query.endRevision);
   }
+  @Get(['resources/:resourceId/foreignDatasheets/:foreignDatasheetId/viewId/:viewId/dataPack', 'resource/:resourceId/foreignDatasheet/:foreignDatasheetId/viewId/:viewId/dataPack'])
+  @UseInterceptors(ResourceDataInterceptor)
+  async getForeignDatasheetViewPack(
+      @Headers('cookie') cookie: string,
+      @Param('resourceId') resourceId: string,
+      @Param('foreignDatasheetId') foreignDatasheetId: string,
+      @Param('viewId') viewId: string,
+  ): Promise<DatasheetPack | DatasheetPackResponse> {
+    // check if the user belongs to this space
+    const { userId } = await this.userService.getMe({ cookie });
+    await this.nodeService.checkUserForNode(userId, resourceId);
+    // check the user has the privileges of the node
+    await this.nodeService.checkNodePermission(resourceId, { cookie });
+    return await this.resourceService.fetchForeignDatasheetPack(resourceId, foreignDatasheetId,{ cookie }, false,undefined,viewId);
+  }
 
   @Get(['resources/:resourceId/foreignDatasheets/:foreignDatasheetId/dataPack', 'resource/:resourceId/foreignDatasheet/:foreignDatasheetId/dataPack'])
   @UseInterceptors(ResourceDataInterceptor)

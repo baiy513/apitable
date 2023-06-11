@@ -64,10 +64,11 @@ export class ResourceService {
     auth: IAuthHeader,
     allowNative: boolean,
     shareId?: string,
+    viewId?:string
   ): Promise<DatasheetPack | DatasheetPackResponse> {
     // Obtain referenced datasheet
     const datasheetId = resourceId.startsWith(ResourceIdPrefix.Datasheet) ? resourceId : await this.nodeService.getMainNodeId(resourceId);
-    return this.datasheetService.fetchForeignDatasheetPack(datasheetId, foreignDatasheetId, auth, allowNative, shareId);
+    return this.datasheetService.fetchForeignDatasheetPack(datasheetId, foreignDatasheetId, auth, allowNative, shareId,viewId);
   }
 
   async checkResourceEntry(resourceId: string, resourceType: ResourceType, sourceId?: string) {

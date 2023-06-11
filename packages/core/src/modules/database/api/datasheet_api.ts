@@ -31,9 +31,9 @@ const baseURL = process.env.NEXT_PUBLIC_NEXT_API;
 
 /**
  * get space datasheet pack
- * @param dstId 
- * @param recordIds 
- * @returns 
+ * @param dstId
+ * @param recordIds
+ * @returns
  */
 export function fetchDatasheetPack(dstId: string, recordIds?: string | string[]) {
   console.log({ baseURL });
@@ -50,10 +50,10 @@ export function fetchDatasheetPack(dstId: string, recordIds?: string | string[])
 
 /**
  * get share datasheet pack
- * 
- * @param shareId 
- * @param dstId 
- * @returns 
+ *
+ * @param shareId
+ * @param dstId
+ * @returns
  */
 export function fetchShareDatasheetPack(shareId: string, dstId: string) {
   return axios.get(urlcat(Url.READ_SHARE_DATAPACK, { shareId, dstId }), { baseURL });
@@ -61,9 +61,9 @@ export function fetchShareDatasheetPack(shareId: string, dstId: string) {
 
 /**
  * get template datasheet pack
- * 
- * @param dstId 
- * @returns 
+ *
+ * @param dstId
+ * @returns
  */
 export const fetchTemplateDatasheetPack = (dstId: string) => {
   return axios.get(urlcat(Url.READ_TEMPLATE_DATAPACK, { dstId }), { baseURL });
@@ -78,23 +78,34 @@ export function fetchEmbedDatasheetPack(embedId: string, dstId: string) {
 
 /**
  * get related datasheet pack in the same space. support resource: datasheet, form, mirror
- * 
- * @param resourceId 
- * @param foreignDatasheetId 
- * @returns 
+ *
+ * @param resourceId
+ * @param foreignDatasheetId
+ * @returns
  */
 export function fetchForeignDatasheetPack(resourceId: string, foreignDatasheetId: string) {
   return axios.get<IApiWrapper & { data: IServerDatasheetPack }>(urlcat(Url.READ_FOREIGN_DATASHEET_PACK,
     { resourceId, foreignDatasheetId }), { baseURL });
 }
+/**
+ * get related datasheet view pack in the same space. support resource: datasheet, form, mirror
+ *
+ * @param resourceId
+ * @param foreignDatasheetId
+ * @returns
+ */
+export function fetchForeignDatasheetViewPack(resourceId: string, foreignDatasheetId: string,viewId:string) {
+  return axios.get<IApiWrapper & { data: IServerDatasheetPack }>(urlcat(Url.READ_FOREIGN_DATASHEET_VIEW_PACK,
+      { resourceId, foreignDatasheetId,viewId }), { baseURL });
+}
 
 /**
- * get related datasheet pack in the share. 
+ * get related datasheet pack in the share.
  * support resource: datasheet, form, mirror
- * @param shareId 
- * @param resourceId 
- * @param foreignDatasheetId 
- * @returns 
+ * @param shareId
+ * @param resourceId
+ * @param foreignDatasheetId
+ * @returns
  */
 export function fetchShareForeignDatasheetPack(shareId: string, resourceId: string, foreignDatasheetId: string) {
   return axios.get(urlcat(Url.READ_SHARE_FOREIGN_DATASHEET_PACK, { shareId, resourceId, foreignDatasheetId }), { baseURL });
@@ -106,17 +117,17 @@ export function fetchEmbedForeignDatasheetPack(embedId: string, resourceId: stri
 
 /**
  * get changeset list
- * @param resourceId 
- * @param resourceType 
+ * @param resourceId
+ * @param resourceType
  * @param startRevision inclusive
  * @param endRevision   exclusive
- * @returns 
+ * @returns
  */
 export function fetchChangesets<T>(
-  resourceId: string, 
-  resourceType: ResourceType, 
-  startRevision: number, 
-  endRevision: number, 
+  resourceId: string,
+  resourceType: ResourceType,
+  startRevision: number,
+  endRevision: number,
   sourceId?: string,
   shareId?: string
 ) {
@@ -139,12 +150,12 @@ export function fetchChangesets<T>(
 /**
  * get specified record's history and comments
  * support: datasheet, mirror
- * 
- * @param resourceId 
- * @param recId 
- * @param params 
- * @param cancelSource 
- * @returns 
+ *
+ * @param resourceId
+ * @param recId
+ * @param params
+ * @param cancelSource
+ * @returns
  */
 export function getActivityList(resourceId: string, recId: string, params: IActivityListParams, cancelSource?: CancelTokenSource) {
   const query: AxiosRequestConfig = {
@@ -159,10 +170,10 @@ export function getActivityList(resourceId: string, recId: string, params: IActi
 
 /**
  * get user infos by uuids
- * 
- * @param nodeId 
- * @param uuids 
- * @returns 
+ *
+ * @param nodeId
+ * @param uuids
+ * @returns
  */
 export function fetchUserList<T>(nodeId: string, uuids: string[]) {
   return axios.get<T>(urlcat(Url.GET_USER_LIST, { nodeId }), {
@@ -180,9 +191,9 @@ export function fetchUserList<T>(nodeId: string, uuids: string[]) {
 
 /**
  * get data records
- * @param dstId 
- * @param recordIds 
- * @returns 
+ * @param dstId
+ * @param recordIds
+ * @returns
  */
 export function fetchRecords(dstId: string, recordIds: string[]) {
   return axios.post<IApiWrapper & { data: IGetRecords }>(urlcat(Url.READ_RECORDS, { dstId }), recordIds, { baseURL });
@@ -190,9 +201,9 @@ export function fetchRecords(dstId: string, recordIds: string[]) {
 
 /**
  * get datasheet meta info
- * 
- * @param dstId 
- * @returns 
+ *
+ * @param dstId
+ * @returns
  */
 export function fetchDatasheetMeta(dstId: string) {
   return axios.get<IApiWrapper & { data: IMeta }>(urlcat(Url.READ_DATASHEET_META, { dstId }), { baseURL });
@@ -200,12 +211,12 @@ export function fetchDatasheetMeta(dstId: string) {
 
 /**
  * open or close field permission
- * 
- * @param dstId 
- * @param fieldId 
- * @param open 
- * @param includeExtend 
- * @returns 
+ *
+ * @param dstId
+ * @param fieldId
+ * @param open
+ * @param includeExtend
+ * @returns
  */
 export function setFieldPermissionStatus(dstId: string, fieldId: string, open: boolean, includeExtend?: boolean) {
   const params = includeExtend ? { includeExtend } : {};
@@ -214,11 +225,11 @@ export function setFieldPermissionStatus(dstId: string, fieldId: string, open: b
 
 /**
  * add field permission role
- * 
- * @param dstId 
- * @param fieldId 
- * @param option 
- * @returns 
+ *
+ * @param dstId
+ * @param fieldId
+ * @param option
+ * @returns
  */
 export function addFieldPermissionRole(dstId: string, fieldId: string, option: { role: string; unitIds: string[] }) {
   return axios.post<IApiWrapper>(urlcat(Url.FIELD_PERMISSION_ADD_ROLE, { dstId, fieldId }), option);
@@ -226,11 +237,11 @@ export function addFieldPermissionRole(dstId: string, fieldId: string, option: {
 
 /**
  * edit field permission role
- * 
- * @param dstId 
- * @param fieldId 
- * @param option 
- * @returns 
+ *
+ * @param dstId
+ * @param fieldId
+ * @param option
+ * @returns
  */
 export function editFieldPermissionRole(dstId: string, fieldId: string, option: { role: string; unitId: string }) {
   return axios.post<IApiWrapper & { data: IMeta }>(urlcat(Url.FIELD_PERMISSION_EDIT_ROLE, { dstId, fieldId }), option);
@@ -238,10 +249,10 @@ export function editFieldPermissionRole(dstId: string, fieldId: string, option: 
 
 /**
  * delete field permission role
- * @param dstId 
- * @param fieldId 
- * @param unitId 
- * @returns 
+ * @param dstId
+ * @param fieldId
+ * @param unitId
+ * @returns
  */
 export function deleteFieldPermissionRole(dstId: string, fieldId: string, unitId: string) {
   return axios.delete<IApiWrapper>(urlcat(Url.FIELD_PERMISSION_DELETE_ROLE, { dstId, fieldId }), {
@@ -253,10 +264,10 @@ export function deleteFieldPermissionRole(dstId: string, fieldId: string, unitId
 
 /**
  * update field permission's other config
- * @param dstId 
- * @param fieldId 
- * @param formSheetAccessible 
- * @returns 
+ * @param dstId
+ * @param fieldId
+ * @param formSheetAccessible
+ * @returns
  */
 export function updateFieldPermissionSetting(dstId: string, fieldId: string, formSheetAccessible: boolean) {
   return axios.post<IApiWrapper>(urlcat(Url.FIELD_PERMISSION_UPDATE_SETTING, { dstId, fieldId }), { formSheetAccessible });
@@ -264,10 +275,10 @@ export function updateFieldPermissionSetting(dstId: string, fieldId: string, for
 
 /**
  * get field(column) permissions' all roles list
- * 
- * @param dstId 
- * @param fieldId 
- * @returns 
+ *
+ * @param dstId
+ * @param fieldId
+ * @returns
  */
 export function fetchFieldPermissionRoleList(dstId: string, fieldId: string) {
   return axios.get<IApiWrapper & { data: IFieldPermissionRoleListData }>(urlcat(Url.FIELD_PERMISSION_ROLE_LIST, { dstId, fieldId }));
@@ -275,10 +286,10 @@ export function fetchFieldPermissionRoleList(dstId: string, fieldId: string) {
 
 /**
  * get field permissions map
- * 
- * @param dstIds 
- * @param shareId 
- * @returns 
+ *
+ * @param dstIds
+ * @param shareId
+ * @returns
  */
 export function getFieldPermissionMap(dstIds: string[], shareId?: string) {
   return axios.get<IApiWrapper & { data: IFieldPermissionResponse[] }>(Url.GET_FIELD_PERMISSION_MAP, {
@@ -290,13 +301,13 @@ export function getFieldPermissionMap(dstIds: string[], shareId?: string) {
 }
 
 /**
- * 
+ *
  * batch edit field permissions role
- * 
- * @param dstId 
- * @param fieldId 
- * @param option 
- * @returns 
+ *
+ * @param dstId
+ * @param fieldId
+ * @param option
+ * @returns
  */
 export function batchEditFieldPermissionRole(dstId: string, fieldId: string, option: { role: string; unitIds: string[] }) {
   return axios.post<IApiWrapper>(urlcat(Url.BATCH_EDIT_PERMISSION_ROLE, { dstId, fieldId }), option);
@@ -304,10 +315,10 @@ export function batchEditFieldPermissionRole(dstId: string, fieldId: string, opt
 
 /**
  * get datasheet view datapack
- * 
- * @param dstId 
- * @param viewId 
- * @returns 
+ *
+ * @param dstId
+ * @param viewId
+ * @returns
  */
 export function getDstViewDataPack(dstId: string, viewId: string) {
   return axios.get<IApiWrapper & { data: IFieldPermissionResponse[] }>(
@@ -317,11 +328,11 @@ export function getDstViewDataPack(dstId: string, viewId: string) {
 
 /**
  * get share datasheet view data pack
- * 
- * @param dstId 
- * @param viewId 
- * @param shareId 
- * @returns 
+ *
+ * @param dstId
+ * @param viewId
+ * @param shareId
+ * @returns
  */
 export function getShareDstViewDataPack(dstId: string, viewId: string, shareId: string) {
   return axios.get<IApiWrapper & { data: IFieldPermissionResponse[] }>(
@@ -347,21 +358,21 @@ export function getCommentsByIds(dstId: string, recordId: string, commentIds: st
 
 /**
  * get datasheet/mirror's being subscription(followed) record ids
- * 
- * @param dstId 
- * @param mirrorId 
- * @returns 
+ *
+ * @param dstId
+ * @param mirrorId
+ * @returns
  */
 export const getSubscriptions = (dstId: string, mirrorId?: string) => mirrorId
   ? axios.get<IApiWrapper & { data: string[] }>(urlcat(Url.GET_MIRROR_SUBSCRIPTIONS, { mirrorId }), { baseURL })
   : axios.get<IApiWrapper & { data: string[] }>(urlcat(Url.GET_DATASHEET_SUBSCRIPTIONS, { dstId }), { baseURL });
 
 /**
- * 
+ *
  * subscribe(follow) datasheet/mirror's record
- * 
- * @param param0 
- * @returns 
+ *
+ * @param param0
+ * @returns
  */
 export const subscribeRecordByIds = ({ datasheetId, mirrorId, recordIds }: ISubOrUnsubByRecordIdsReq) => mirrorId
   ? axios.post<IApiWrapper>(urlcat(Url.SUBSCRIBE_MIRROR_RECORDS, { mirrorNodeId: mirrorId }), { recordIds }, { baseURL })
@@ -369,8 +380,8 @@ export const subscribeRecordByIds = ({ datasheetId, mirrorId, recordIds }: ISubO
 
 /**
  * unsubscribe(cancel follow) datasheet/mirror's record
- * @param param0 
- * @returns 
+ * @param param0
+ * @returns
  */
 export const unsubscribeRecordByIds = ({ datasheetId, mirrorId, recordIds }: ISubOrUnsubByRecordIdsReq) => mirrorId
   ? axios.delete<IApiWrapper>(urlcat(Url.UNSUBSCRIBE_MIRROR_RECORDS, { mirrorNodeId: mirrorId }), { data: { recordIds }, baseURL })
@@ -378,10 +389,10 @@ export const unsubscribeRecordByIds = ({ datasheetId, mirrorId, recordIds }: ISu
 
 /**
  * batch delete field permissions
- * @param dstId 
- * @param fieldId 
- * @param option 
- * @returns 
+ * @param dstId
+ * @param fieldId
+ * @param option
+ * @returns
  */
 export const batchDeletePermissionRole = (dstId: string, fieldId: string, option: { unitIds: string[] }) => {
   return axios.delete<IApiWrapper>(urlcat(Url.BATCH_DELETE_PERMISSION_ROLE, { dstId, fieldId }), { data: option });
