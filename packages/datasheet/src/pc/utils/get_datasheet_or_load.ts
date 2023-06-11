@@ -19,7 +19,7 @@ import { Selectors, IReduxState, StoreActions, FieldType } from '@apitable/core'
 import { store } from 'pc/store';
 
 export const getDatasheetOrLoad = (
-  state: IReduxState, foreignDatasheetId: string, dstId?: string, assignDstId?: boolean, forceFetch?: boolean, ignoreMirror?: boolean
+  state: IReduxState, foreignDatasheetId: string, dstId?: string, assignDstId?: boolean, forceFetch?: boolean, ignoreMirror?: boolean,viewId?:string
 ) => {
   const { formId, mirrorId } = state.pageParams;
   const datasheetId = dstId || state.pageParams.datasheetId;
@@ -37,15 +37,25 @@ export const getDatasheetOrLoad = (
     (!datasheet && !datasheetLoading && !datasheetErrorCode) ||
     (datasheet?.isPartOfData && !datasheetLoading && !datasheetErrorCode))
   ) {
+
+
     if (formId) {
       store.dispatch(StoreActions.fetchForeignDatasheet(formId, foreignDatasheetId, forceFetch));
       return null;
     }
     if (mirrorId && !ignoreMirror) {
+      if (viewId) {
+        store.dispatch(StoreActions.fetchForeignDatasheet(mirrorId, foreignDatasheetId, forceFetch,false,viewId));
+        return null;
+      }
       store.dispatch(StoreActions.fetchForeignDatasheet(mirrorId, foreignDatasheetId, forceFetch));
       return null;
     }
     if (assignDstId && datasheetId) {
+      if (viewId) {
+        store.dispatch(StoreActions.fetchForeignDatasheet(mirrorId, foreignDatasheetId, forceFetch,false,viewId));
+        return null;
+      }
       store.dispatch(StoreActions.fetchForeignDatasheet(datasheetId, foreignDatasheetId, forceFetch));
       return null;
     }

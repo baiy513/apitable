@@ -975,7 +975,7 @@ export class CellHelper extends KonvaDrawer {
     const NO_DATA = Symbol('NO_DATA');
     const ERROR_DATA = Symbol('ERROR_DATA');
     const foreignDatasheetId = field.property.foreignDatasheetId;
-    const datasheet = getDatasheetOrLoad(state, foreignDatasheetId, currentResourceId, true);
+    const datasheet = getDatasheetOrLoad(state, foreignDatasheetId, currentResourceId, true,field.property.limitToView);
     const isLoading = Selectors.getDatasheetLoading(state, foreignDatasheetId);
     const datasheetClient = Selectors.getDatasheetClient(state, foreignDatasheetId);
     const snapshot = datasheet && datasheet.snapshot;

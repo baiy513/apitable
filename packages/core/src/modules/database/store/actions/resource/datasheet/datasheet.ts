@@ -331,7 +331,7 @@ export function fetchDatasheet(datasheetId: string, successCb?: () => void, over
  * in the expanded UI modal that select related records, request this api to get the related table's permission
  * no need to consider templates
  */
-export function fetchForeignDatasheet(resourceId: string, foreignDstId: string,viewId?:string, forceFetch?: boolean) {
+export function fetchForeignDatasheet(resourceId: string, foreignDstId: string, forceFetch?: boolean,viewId?:string) {
   return (dispatch: any, getState: () => IReduxState) => {
     const state = getState();
     const foreignDatasheet = getDatasheet(state, foreignDstId);
