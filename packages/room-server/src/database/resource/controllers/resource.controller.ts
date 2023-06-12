@@ -87,7 +87,7 @@ export class ResourceController {
     }
     return await this.changesetService.getChangesetList(resourceId, Number(query.resourceType), query.startRevision, query.endRevision);
   }
-  @Get(['resources/:resourceId/foreignDatasheets/:foreignDatasheetId/viewId/:viewId/dataPack', 'resource/:resourceId/foreignDatasheet/:foreignDatasheetId/viewId/:viewId/dataPack'])
+  @Get(['resources/:resourceId/foreignDatasheets/:foreignDatasheetId/:viewId/dataPack', 'resource/:resourceId/foreignDatasheet/:foreignDatasheetId/:viewId/dataPack'])
   @UseInterceptors(ResourceDataInterceptor)
   async getForeignDatasheetViewPack(
       @Headers('cookie') cookie: string,
