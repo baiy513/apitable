@@ -90,7 +90,7 @@ export const READ_SHARE_CHANGESET = '/shares/:shareId/resources/:resourceId/chan
 // Get the associated table data of the resource
 export const READ_FOREIGN_DATASHEET_PACK = '/resource/:resourceId/foreignDatasheet/:foreignDatasheetId/dataPack';
 // Get the associated table data of the resource
-export const READ_FOREIGN_DATASHEET_VIEW_PACK = '/resource/:resourceId/foreignDatasheet/:foreignDatasheetId/viewId/:viewId/dataPack';
+export const READ_FOREIGN_DATASHEET_VIEW_PACK = '/resource/:resourceId/foreignDatasheet/:foreignDatasheetId/:viewId/dataPack';
 // Get the associated table data of the shared resource
 export const READ_SHARE_FOREIGN_DATASHEET_PACK = '/share/:shareId/resource/:resourceId/foreignDatasheet/:foreignDatasheetId/dataPack';
 // Get comments and history for a single record

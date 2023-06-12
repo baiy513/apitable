@@ -43,6 +43,7 @@ import { DatasheetRecordSourceService } from './services/datasheet.record.source
 import { DatasheetService } from './services/datasheet.service';
 import { RecordCommentService } from './services/record.comment.service';
 import { DatasheetWidgetService } from './services/datasheet.widget.service';
+import {DatasheetCacheToDbService} from "./services/datasheet.cachetodb.service";
 
 @Module({
   imports: [
@@ -73,7 +74,8 @@ import { DatasheetWidgetService } from './services/datasheet.widget.service';
     RecordCommentService,
     DatasheetFieldHandler,
     ComputeFieldReferenceManager,
-    DatasheetWidgetService
+    DatasheetWidgetService,
+    DatasheetCacheToDbService
   ],
   controllers: [DatasheetController],
   exports: [
@@ -86,7 +88,8 @@ import { DatasheetWidgetService } from './services/datasheet.widget.service';
     RecordCommentService,
     DatasheetFieldHandler,
     ComputeFieldReferenceManager,
-    DatasheetWidgetService
+    DatasheetWidgetService,
+    DatasheetCacheToDbService
   ],
 })
 export class DatasheetModule {}
