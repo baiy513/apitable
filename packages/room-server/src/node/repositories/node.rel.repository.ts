@@ -38,7 +38,18 @@ export class NodeRelRepository extends Repository<NodeRelEntity> {
       .andWhere('vn.is_rubbish = 0')
       .getRawMany();
   }
-
+  public async selectNodeRelInfoByMainNode(mainNodeId: string): Promise<NodeRelInfo[] | undefined> {
+    return await this.createQueryBuilder('vnr')
+        .select('vnr.rel_node_id', 'relNodeId')
+        .addSelect("JSON_UNQUOTE(JSON_EXTRACT(vnr.extra, '$.viewId'))", 'viewId')
+        .addSelect('vn.node_name', 'datasheetName')
+        .addSelect('vn.icon', 'datasheetIcon')
+        .addSelect('vd.revision', 'datasheetRevision')
+        .innerJoin(`${this.manager.connection.options.entityPrefix}node`, 'vn', 'vnr.main_node_id = vn.node_id')
+        .leftJoin(`${this.manager.connection.options.entityPrefix}datasheet`, 'vd', 'vn.node_id = vd.dst_id')
+        .where('vnr.main_node_id = :mainNodeId', { mainNodeId })
+        .getRawMany<NodeRelInfo>();
+  }
   public async selectNodeRelInfo(relNodeId: string): Promise<NodeRelInfo | undefined> {
     return await this.createQueryBuilder('vnr')
       .select('vnr.main_node_id', 'datasheetId')

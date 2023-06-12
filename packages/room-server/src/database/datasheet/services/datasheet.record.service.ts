@@ -294,4 +294,7 @@ export class DatasheetRecordService {
 
     return Field.bindContext(primaryField, store.getState()).cellValueToString(record.data[primaryFieldId]!) || '';
   }
+  async updateCell(dstId:string, recordId:string, cellData:any) {
+    return   await this.recordRepo.updateCell(dstId, recordId, cellData);
+  }
 }

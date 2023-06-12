@@ -61,7 +61,14 @@ export class NodeService {
     await this.memberService.checkUserIfInSpace(userId, spaceId);
     return spaceId;
   }
-
+  /**
+   * get by mainnode id
+   */
+  @Span()
+  async getRelNodeInfoByMainNode(nodeId: string): Promise<NodeRelInfo[]|undefined> {
+    const raw = await this.nodeRelRepository.selectNodeRelInfoByMainNode(nodeId);
+    return raw;
+  }
   @Span()
   async checkNodePermission(nodeId: string, auth: IAuthHeader): Promise<void> {
     const permission = await this.nodePermissionService.getNodeRole(nodeId, auth);

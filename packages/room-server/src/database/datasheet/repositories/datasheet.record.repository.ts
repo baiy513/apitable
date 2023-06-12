@@ -65,4 +65,22 @@ export class DatasheetRecordRepository extends Repository<DatasheetRecordEntity>
       [path, dstId, recordId],
     );
   }
+  updateCell(dstId:string, recordId:string, cellData:any){
+    const params: string[] = [];
+    const jsonParams = cellData.reduce((pre: any, cur: any) => {
+      pre += `, '$.${cur.fieldId}', CAST(? AS JSON)`;
+      params.push(JSON.stringify(cur.data));
+      return pre;
+    }, '');
+
+    // Update cell content in database
+    return    this.createQueryBuilder()
+        .update(DatasheetRecordEntity)
+        .set({
+          data: () => `JSON_SET(data ${jsonParams})`,
+        })
+        .where([{ dstId, recordId }])
+        .setNativeParameters(params)
+        .execute();
+  }
 }

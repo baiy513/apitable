@@ -79,6 +79,7 @@ import {
 } from '../interfaces/ot.interface';
 import { ResourceChangeHandler } from './resource.change.handler';
 import { RobotEventService } from 'database/robot/services/robot.event.service';
+import { DatasheetCacheToDbService } from 'database/datasheet/services/datasheet.cachetodb.service';
 
 class CellActionMap {
   readonly map: Map<string, Map<string, IJOTAction>> = new Map();
@@ -154,6 +155,7 @@ export class OtService {
     private readonly envConfigService: EnvConfigService,
     private readonly eventService: RobotEventService,
     private readonly nodeService: NodeService,
+    private readonly dataSheetCacheToDbService: DatasheetCacheToDbService
   ) {}
 
   /**
@@ -303,6 +305,27 @@ export class OtService {
       return ids;
     }, [] as string[]);
 
+
+    if(results){
+      for(const remoteChangeset of results){
+        if(remoteChangeset.operations){
+          const rids=[];
+          const fids=[];
+          for(const operation of remoteChangeset.operations){
+            if(operation.actions&&operation){
+              for(const action of operation.actions){
+                if (action.p.length === 4 && action.p[0] === 'recordMap' && action.p[2] === 'data') {
+                  const recordId = action.p[1] as string;
+                  rids.push(recordId);
+                  fids.push(action.p[3] as string);
+                }
+              }
+            }
+          }
+          await this.dataSheetCacheToDbService.cacheFilterToDatabase(remoteChangeset.resourceId,rids,fids)
+        }
+      }
+    }
     const allEffectDstIds: string[] = await this.relService.getEffectDatasheetIds(thisBatchResourceIds);
     const hasRobot = await this.resourceService.getHasRobotByResourceIds(allEffectDstIds);
     this.logger.info('applyRoomChangeset-hasRobot', {
