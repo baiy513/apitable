@@ -53,7 +53,7 @@ export const getDatasheetOrLoad = (
     }
     if (assignDstId && datasheetId) {
       if (viewId) {
-        store.dispatch(StoreActions.fetchForeignDatasheet(mirrorId, foreignDatasheetId, forceFetch,false,viewId));
+        store.dispatch(StoreActions.fetchForeignDatasheet(datasheetId, foreignDatasheetId, forceFetch,false,viewId));
         return null;
       }
       store.dispatch(StoreActions.fetchForeignDatasheet(datasheetId, foreignDatasheetId, forceFetch));

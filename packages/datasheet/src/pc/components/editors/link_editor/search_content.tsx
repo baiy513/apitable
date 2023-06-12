@@ -314,7 +314,7 @@ const SearchContentBase: React.ForwardRefRenderFunction<{ getFilteredRows(): { [
         return;
       }
       if(field.property.limitToView)
-        dispatch(StoreActions.fetchForeignDatasheet(mirrorId, foreignDatasheet.id,false,field.property.limitToView) as any);
+        dispatch(StoreActions.fetchForeignDatasheet(datasheetId, foreignDatasheet.id,false,field.property.limitToView) as any);
 
       datasheetId && dispatch(StoreActions.fetchForeignDatasheet(datasheetId, foreignDatasheet.id) as any);
     }
