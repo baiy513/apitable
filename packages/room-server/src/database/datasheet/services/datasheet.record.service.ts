@@ -16,7 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Field, FieldType, IMeta, IRecord, IRecordMap, IReduxState } from '@apitable/core';
+import {
+  Field,
+  FieldType,
+  FilterConjunction,
+  IFilterInfo,
+  IMeta,
+  IRecord,
+  IRecordMap,
+  IReduxState
+} from '@apitable/core';
 import { Span } from '@metinseylan/nestjs-opentelemetry';
 import { Injectable } from '@nestjs/common';
 import { RecordCommentService } from './record.comment.service';
@@ -32,23 +41,62 @@ import { DatasheetChangesetService } from './datasheet.changeset.service';
 import { UnitInfoDto } from '../../../unit/dtos/unit.info.dto';
 import { DatasheetRecordEntity } from '../entities/datasheet.record.entity';
 import { In } from 'typeorm';
+import { InjectLogger } from 'shared/common/decorators';
+import {buildConditions} from "../../utils/query.util";
 
 @Injectable()
 export class DatasheetRecordService {
   constructor(
-    private readonly recordRepo: DatasheetRecordRepository,
-    private readonly recordCommentService: RecordCommentService,
-    private readonly datasheetChangesetService: DatasheetChangesetService,
+      @InjectLogger() private readonly logger: Logger,
+      private readonly recordRepo: DatasheetRecordRepository,
+      private readonly recordCommentService: RecordCommentService,
+      private readonly datasheetChangesetService: DatasheetChangesetService,
   ) {}
 
   @Span()
-  async getRecordsByDstId(dstId: string): Promise<IRecordMap> {
-    const records = await this.recordRepo.find({
-      select: ['recordId', 'data', 'revisionHistory', 'createdAt', 'updatedAt', 'recordMeta'],
-      where: { dstId, isDeleted: false },
-    });
-    const commentCountMap = await this.recordCommentService.getCommentCountMapByDstId(dstId);
-    return this.formatRecordMap(records, commentCountMap);
+  async getRecordsByDstId(dstId: string,options?:{filterInfo?:IFilterInfo}): Promise<IRecordMap> {
+    if (options && options.filterInfo) {
+      //const currentDate = new Date();
+      //const pastDate = new Date(currentDate.getTime() - options!.pageNum*30 * 24 * 3600 * 1000);
+      this.logger.info("options.filterInfo " + JSON.stringify(options.filterInfo))
+      let build = this.recordRepo.createQueryBuilder('record')
+          .where(' record.dst_id=:dstId and record.is_deleted=0', {dstId: dstId})
+      const sqlConditions = buildConditions(options.filterInfo)
+      if (sqlConditions && sqlConditions.sqlWhere) {
+        sqlConditions.sqlWhere.forEach(where => {
+          if (sqlConditions.sqlConjunction === FilterConjunction.And) {
+            if (where.sqlCondition != null && where.sqlParam != null)
+              build = build.andWhere("record." + where.sqlCondition, where.sqlParam)
+            else if (where.sqlCondition != null && where.sqlParam == null) {
+              build = build.andWhere("record." + where.sqlCondition)
+            }
+          } else if (sqlConditions.sqlConjunction === FilterConjunction.Or) {
+            if (where.sqlCondition != null && where.sqlParam != null)
+              build = build.orWhere("record." + where.sqlCondition, where.sqlParam)
+            else if (where.sqlCondition != null && where.sqlParam == null) {
+              build = build.orWhere("record." + where.sqlCondition)
+            }
+          }
+
+        })
+      }
+      // .where('record.created_time >= :pastDate AND record.created_time <= :currentDate' +
+      //     ' and record.dst_id=:dstId and record.is_deleted=0',
+      //     {pastDate:pastDate,currentDate:currentDate,dstId:dstId})
+
+
+      this.logger.info("build.getSql():" + build.getSql() + "\r\n build.getParameters():" + JSON.stringify(build.getParameters()))
+      const records = await build.getMany();
+      const commentCountMap = await this.recordCommentService.getCommentCountMapByDstId(dstId);
+      return this.formatRecordMap(records, commentCountMap);
+    } else {
+      const records = await this.recordRepo.find({
+        select: ['recordId', 'data', 'revisionHistory', 'createdAt', 'updatedAt', 'recordMeta'],
+        where: {dstId, isDeleted: false},
+      });
+      const commentCountMap = await this.recordCommentService.getCommentCountMapByDstId(dstId);
+      return this.formatRecordMap(records, commentCountMap);
+    }
   }
 
   @Span()

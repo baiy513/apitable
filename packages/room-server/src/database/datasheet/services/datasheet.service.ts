@@ -122,7 +122,7 @@ export class DatasheetService {
     const meta = await this.datasheetMetaService.getMetaDataByDstId(dstId, options?.metadataException);
     const fetchDataPackProfiler = this.logger.startTimer();
 
-    //let filterInfo=undefined;
+    let filterInfo=undefined;
     if(options?.viewId) {
       const view = meta.views.find(view => view.id === options?.viewId);
       if (view) {
@@ -146,12 +146,12 @@ export class DatasheetService {
           }
           return true;
         });
-        //filterInfo= view.filterInfo;
+        filterInfo= view.filterInfo;
       }
     }
     const recordMap = options?.recordIds
         ? await this.datasheetRecordService.getRecordsByDstIdAndRecordIds(dstId, options?.recordIds)
-        : await this.datasheetRecordService.getRecordsByDstId(dstId);
+        : await this.datasheetRecordService.getRecordsByDstId(dstId,{filterInfo:filterInfo});
     fetchDataPackProfiler.done({ message: `fetchDataPackProfiler ${dstId} done` });
 
     // Query foreignDatasheetMap and unitMap
