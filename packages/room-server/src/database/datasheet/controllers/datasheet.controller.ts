@@ -32,6 +32,7 @@ import { DatasheetRecordService } from '../services/datasheet.record.service';
 import { DatasheetService } from '../services/datasheet.service';
 import { MetaService } from 'database/resource/services/meta.service';
 import type { DatasheetPackResponse } from '@apitable/room-native-api';
+import {DatasheetCacheToDbService} from "../services/datasheet.cachetodb.service";
 
 /**
  * Datasheet APIs
@@ -47,6 +48,8 @@ export class DatasheetController {
     private readonly datasheetRecordService: DatasheetRecordService,
     private readonly datasheetRecordSubscriptionService: DatasheetRecordSubscriptionBaseService,
     private readonly resourceMetaService: MetaService,
+    private readonly datasheetCacheToDbService: DatasheetCacheToDbService,
+
   ) {}
 
   @Get(['datasheets/:dstId/dataPack', 'datasheet/:dstId/dataPack'])
@@ -160,5 +163,10 @@ export class DatasheetController {
     await this.nodeService.checkUserForNode(userId, dstId);
     await this.nodeService.checkNodePermission(dstId, { cookie });
     await this.datasheetRecordSubscriptionService.unsubscribeDatasheetRecords(userId, dstId, data.recordIds);
+  }
+  //http://139.224.26.106:3333/nest/v1/cacheFilterToDatabase/dstvrbdvcTw5ayVHPa/recx5tqfSIvSZ/fldngDQJThvtg
+  @Get(['cachefiltertodatabase/:dstId/:recordId/:fieldId'])
+  async cachefiltertodatabase(@Param('dstId') dstId: string,@Param('recordId') recordId: string,@Param('fieldId') fieldId: string) {
+    await this.datasheetCacheToDbService.cacheFilterToDatabase(dstId, [recordId],[fieldId]);
   }
 }
