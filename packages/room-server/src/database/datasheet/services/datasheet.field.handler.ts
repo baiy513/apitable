@@ -121,6 +121,9 @@ export class DatasheetFieldHandler {
       //remove redundant data and column
       if(snapshot&&snapshot.meta&&snapshot.meta.views){
         const processedFldIds = [...Object.values(globalParam.dstIdToProcessedFldIdsMap[foreignDstId] || {})] as string[];
+        const firstColumn=snapshot.meta.views[0]?.columns[0]?.fieldId;
+        if(firstColumn&&!processedFldIds.includes(firstColumn))
+          processedFldIds.push(firstColumn)
         if(snapshot.meta.fieldMap!=null){
           for (const key in snapshot.meta.fieldMap){
             if(!processedFldIds.includes(key)){
@@ -143,7 +146,6 @@ export class DatasheetFieldHandler {
             view.rows=[];
           })
         }
-
       }
     }
 
