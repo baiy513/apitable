@@ -225,8 +225,8 @@ export class DatasheetCacheToDbService{
     for (const rid of recordIds) {
       const cellData = [];
       for (const fid of mirrorFilterFields) {
-        const {cellStr} = calcCellValueAndString({state:state, snapshot:recordSnapShot,recordId:rid, fieldId:fid});
-        cellData.push({fieldId: fid, data: cellStr})
+        const {cellValue} = calcCellValueAndString({state:state, snapshot:recordSnapShot,recordId:rid, fieldId:fid});
+        cellData.push({fieldId: fid, data: cellValue})
       }
       this.logger.info("start cacheFilterToDatabase  dstId:${dstId} cellData :${cellData}");
       const result = await this.datasheetRecordService.updateCell(dstId, rid, cellData);
