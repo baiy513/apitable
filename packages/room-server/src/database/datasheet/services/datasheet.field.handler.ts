@@ -47,6 +47,7 @@ import { ComputeFieldReferenceManager } from './compute.field.reference.manager'
 import { DatasheetMetaService } from './datasheet.meta.service';
 import { DatasheetRecordService } from './datasheet.record.service';
 import { ILinkIds } from '@apitable/core';
+import {ILinkField} from "@apitable/widget-sdk/dist/core";
 
 /**
  * <p>
@@ -128,6 +129,12 @@ export class DatasheetFieldHandler {
         if(snapshot.meta.fieldMap!=null){
           for (const key in snapshot.meta.fieldMap){
             if(!processedFldIds.includes(key)){
+              for(const processKey of processedFldIds){//如果是用到的link则保留
+                const fieldInfo=snapshot.meta.fieldMap[processKey];
+               if(fieldInfo&&fieldInfo.property&&key==fieldInfo.property.relatedLinkFieldId){
+                 continue;
+               }
+              }
               for(const rid in snapshot.recordMap){
                 const record=snapshot.recordMap[rid];
                 delete record?.data[key];
