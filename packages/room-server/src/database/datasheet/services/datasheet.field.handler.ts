@@ -104,13 +104,14 @@ export class DatasheetFieldHandler {
     origin: IFetchDataOriginOptions,
     linkedRecordMap?: ILinkedRecordMap,
     withoutPermission?: boolean,
+    processFields?:string[]
   ): Promise<IForeignDatasheetMap & IDatasheetUnits> {
     const beginTime = +new Date();
     this.logger.info(`Start processing special field [${mainDstId}]`);
     const globalParam = this.initGlobalParameter(mainDstId, auth, origin, withoutPermission);
 
     // Process all fields of the datasheet
-    const fldIds = Object.keys(mainMeta.fieldMap);
+    const fldIds =processFields?processFields:Object.keys(mainMeta.fieldMap);
     await this.parseField(mainDstId, mainMeta.fieldMap, mainRecordMap, fldIds, globalParam, linkedRecordMap);
 
     const foreignDatasheetMap = globalParam.foreignDstMap;

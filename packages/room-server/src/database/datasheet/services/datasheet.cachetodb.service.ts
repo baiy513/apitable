@@ -210,7 +210,7 @@ export class DatasheetCacheToDbService{
     return dstToFieldMap;
   }
 
-  private async updateDataBase(dstId: string, recordIds: string[], mirrorFilterFields: any) {
+  private async updateDataBase(dstId: string, recordIds: string[], mirrorFilterFields: string[]) {
     const resource: Map<string, string[]> = new Map<string, string[]>();
     resource.set(dstId, recordIds);
     const state = await this.makeState(resource);//get data pack
@@ -259,8 +259,8 @@ export class DatasheetCacheToDbService{
   /**
    * Analyze ops, figure out op resource dependency, query database and construct sparse store.
    */
-  private async makeState(resourceMap: IEventResourceMap): Promise<IReduxState> {
-    const datasheetPacks: IServerDatasheetPack[] = await this.dataSheetService.getTinyBasePacks(resourceMap);
+  private async makeState(resourceMap: IEventResourceMap,resourceFieldsMap:Map<string,string[]>): Promise<IReduxState> {
+    const datasheetPacks: IServerDatasheetPack[] = await this.dataSheetService.getTinyBasePacks(resourceMap,resourceFieldsMap);
     this.logger.debug('datasheetPacks', datasheetPacks);
     return this.commandService.fillTinyStore(datasheetPacks).getState();
   }

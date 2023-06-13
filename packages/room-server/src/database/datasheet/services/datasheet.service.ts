@@ -300,8 +300,9 @@ export class DatasheetService {
     origin: IFetchDataOriginOptions,
     linkedRecordMap?: ILinkedRecordMap,
     withoutPermission?: boolean,
+    processFields?:string[]
   ): Promise<IForeignDatasheetMap & IDatasheetUnits> {
-    return this.datasheetFieldHandler.parse(mainDstId, auth, mainMeta, mainRecordMap, origin, linkedRecordMap, withoutPermission);
+    return this.datasheetFieldHandler.parse(mainDstId, auth, mainMeta, mainRecordMap, origin, linkedRecordMap, withoutPermission,processFields);
   }
 
   async fetchUsers(nodeId: string, uuids: string[]): Promise<any[]> {
@@ -407,7 +408,7 @@ export class DatasheetService {
    * + Needs linked datasheet data
    * + Needs member info
    */
-  async getTinyBasePacks(resourceMap: IEventResourceMap): Promise<IBaseDatasheetPack[]> {
+  async getTinyBasePacks(resourceMap: IEventResourceMap,resourceFieldsMap?:Map<string,string[]>): Promise<IBaseDatasheetPack[]> {
     const dstIds = [...resourceMap.keys()];
     this.logger.info(`getTinyBasePacks start [${dstIds}]`, dstIds);
     const tinyBasePacksProfiler = this.logger.startTimer();
@@ -451,7 +452,8 @@ export class DatasheetService {
       // Query foreignDatasheetMap and unitMap
       const linkedRecordMap = this.getLinkedRecordMap(dstId, meta, recordMap);
       const origin = { internal: true, main: true };
-      const combine = await this.processField(dstId, {}, meta, recordMap, origin, linkedRecordMap, true);
+
+      const combine = await this.processField(dstId, {}, meta, recordMap, origin, linkedRecordMap, true,resourceFieldsMap?.get(dstId));
       basePacks.push({
         datasheet: datasheet as any,
         snapshot: {
