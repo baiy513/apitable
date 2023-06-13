@@ -47,7 +47,6 @@ import { ComputeFieldReferenceManager } from './compute.field.reference.manager'
 import { DatasheetMetaService } from './datasheet.meta.service';
 import { DatasheetRecordService } from './datasheet.record.service';
 import { ILinkIds } from '@apitable/core';
-import {ILinkField} from "@apitable/widget-sdk/dist/core";
 
 /**
  * <p>
