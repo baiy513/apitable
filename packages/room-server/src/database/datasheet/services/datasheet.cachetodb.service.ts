@@ -213,7 +213,9 @@ export class DatasheetCacheToDbService{
   private async updateDataBase(dstId: string, recordIds: string[], mirrorFilterFields: string[]) {
     const resource: Map<string, string[]> = new Map<string, string[]>();
     resource.set(dstId, recordIds);
-    const state = await this.makeState(resource);//get data pack
+    const resourceFields: Map<string, string[]> = new Map<string, string[]>();
+    resourceFields.set(dstId, mirrorFilterFields);
+    const state = await this.makeState(resource,resourceFields);//get data pack
     const snapshot = state.datasheetMap[dstId]?.datasheet?.snapshot;
     const recordSnapShot = {
       meta: {fieldMap: snapshot!.meta.fieldMap},
