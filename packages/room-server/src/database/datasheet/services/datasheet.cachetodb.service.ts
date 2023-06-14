@@ -111,6 +111,8 @@ export class DatasheetCacheToDbService{
     let nodeRefs = null;
     if (curRefFields && curRefFields.length > 0)
       nodeRefs = await this.nodeService.getRelNodeInfoByMainNode(dstId);
+
+    curRefFields = await this.findSelfAllAffectFields(curRefFields, dstId);
     if (nodeRefs && nodeRefs.length > 0) {//找出修改导致本表一些列改变，并且这些列影响到过滤列
 
       this.logger.info("start cacheFilterToDatabase get nodeRefs ");
@@ -125,7 +127,6 @@ export class DatasheetCacheToDbService{
           }
         }
       }
-      curRefFields = await this.findSelfAllAffectFields(curRefFields, dstId);
       this.logger.info("start cacheFilterToDatabase newRefids dstId:${dstId} newRefids:${newRefids}");
 
       let mirrorFilterFields:string[]=[];
