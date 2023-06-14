@@ -128,17 +128,16 @@ export class DatasheetFieldHandler {
         if(snapshot.meta.fieldMap!=null){
           for (const key in snapshot.meta.fieldMap){
             if(!processedFldIds.includes(key)){
-              for(const processKey of processedFldIds){//如果是用到的link则保留
-                const fieldInfo=snapshot.meta.fieldMap[processKey];
-               if(fieldInfo&&fieldInfo.property&&key==fieldInfo.property.relatedLinkFieldId){
-                 continue;
-               }
+              const linkReserv=processedFldIds.some(processKey=>{
+                    const fieldInfo=snapshot.meta.fieldMap[processKey];
+                    return fieldInfo&&fieldInfo.property&&fieldInfo.property.relatedLinkFieldId==key})
+              if(!linkReserv) {
+                for (const rid in snapshot.recordMap) {
+                  const record = snapshot.recordMap[rid];
+                  delete record?.data[key];
+                }
+                delete snapshot.meta.fieldMap[key];
               }
-              for(const rid in snapshot.recordMap){
-                const record=snapshot.recordMap[rid];
-                delete record?.data[key];
-              }
-              delete snapshot.meta.fieldMap[key];
             }
           }
         }
