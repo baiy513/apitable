@@ -149,7 +149,7 @@ export class DatasheetCacheToDbService{
       }
       return {needModifyFields:mirrorFilterFields,allAffectFields:curRefFields};
     }
-    return {needModifyFields:undefined,allAffectFields:undefined};
+    return {needModifyFields:undefined,allAffectFields:curRefFields};
   }
 
   private async findSelfAllAffectFields(curRefFields: string[], dstId: string) {
