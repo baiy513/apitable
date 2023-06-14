@@ -50,34 +50,9 @@ export class DatasheetCacheToDbService{
    */
   @Span()
   async  cacheFilterToDatabase(dstId: string,recordIds:string[],changedFields:string[]) {
-    try {
-      let modifyFields=await this.cacheSourceDataSheetToDb(dstId,recordIds,changedFields);
-      if(modifyFields){
-        modifyFields=[...changedFields,...modifyFields];
-      }else{
-        modifyFields=changedFields;
-      }
-      await this.dealCacheParent(modifyFields, dstId, recordIds);
-
-    }catch (err) {
-      this.logger.info(" cacheFilterToDatabase  err ${err}");
-      this.logger.error(err);
-    }
+     await this.internalCacheFilterToDatabase(dstId,recordIds,changedFields);
   }
 
-  @Span()
-  async  cacheSourceDataSheetToDb(dstId: string,recordIds:string[],changedFields:string[]):Promise<string[]|undefined> {
-
-    this.logger.info("start cacheFilterToDatabase dstId:${dstId} affectFields:${affectFields}");
-    //if(dstToFieldMap.size>0&&dstToFieldMap.get(dstId)) {
-    const needModifyFields = await this.getNeedModifyFields(changedFields, dstId);
-    if (needModifyFields&&needModifyFields.length > 0) {//find need cac and cached field
-      this.logger.info("start cacheFilterToDatabase dstId:${dstId} mirrorFilterFields:${mirrorFilterFields}");
-      await this.updateDataBase(dstId, recordIds, needModifyFields);
-      return needModifyFields
-    }
-    return undefined;
-  }
   /**
    * recursive cache the filter value to database,to fast the filter,magic link not comp
    * the difficult is to find affect datasheet recursive and the efficent
@@ -88,7 +63,7 @@ export class DatasheetCacheToDbService{
     this.logger.info("start cacheFilterToDatabase dstId:${dstId} affectFields:${affectFields}");
 
     //if(dstToFieldMap.size>0&&dstToFieldMap.get(dstId)) {
-    const needModifyFields= await this.getNeedModifyFields(affectFields, dstId);
+    const {needModifyFields,allAffectFields}= await this.getNeedModifyFields(affectFields, dstId);
 
     if (needModifyFields&&needModifyFields.length > 0) {//find need cac and cached field
 
@@ -96,12 +71,15 @@ export class DatasheetCacheToDbService{
 
       await this.updateDataBase(dstId, recordIds, needModifyFields);
 
-      await this.dealCacheParent(needModifyFields, dstId, recordIds);
+    }
+    if (allAffectFields&&allAffectFields.length > 0) {//find need cac and cached field
+
+      await this.dealCacheParent(allAffectFields, dstId, recordIds);
     }
   }
 
-  private async dealCacheParent(needModifyFields: string[], dstId: string, recordIds: string[]) {
-    const parentDstToFieldMap = await this.findParentDstFields(needModifyFields, dstId);
+  private async dealCacheParent(affectFields: string[], dstId: string, recordIds: string[]) {
+    const parentDstToFieldMap = await this.findParentDstFields(affectFields, dstId);
     for (const [refDstId, refFields] of parentDstToFieldMap) {//处理影响的父表一级引用表
 
       const metaData = await this.datasheetMetaService.getMetaDataByDstId(refDstId);
@@ -127,7 +105,8 @@ export class DatasheetCacheToDbService{
     }
   }
 
-  private async getNeedModifyFields(changedFields: string[], dstId: string):Promise<string[]|undefined> {
+  private async getNeedModifyFields(changedFields: string[], dstId: string):
+                              Promise<{needModifyFields:string[]|undefined,allAffectFields:string[]|undefined}> {
     let curRefFields = changedFields;
     let nodeRefs = null;
     if (curRefFields && curRefFields.length > 0)
@@ -147,11 +126,8 @@ export class DatasheetCacheToDbService{
         }
       }
       curRefFields = await this.findSelfAllAffectFields(curRefFields, dstId);
-
       this.logger.info("start cacheFilterToDatabase newRefids dstId:${dstId} newRefids:${newRefids}");
 
-
-      this.logger.info("start cacheFilterToDatabase dstId:${dstId} metaData.views:${metaData.views}");
       let mirrorFilterFields:string[]=[];
       for (const nodeRef of nodeRefs) {
         const view = metaData.views.find(view => view.id === nodeRef.viewId)
@@ -170,9 +146,9 @@ export class DatasheetCacheToDbService{
           }
         }
       }
-      return mirrorFilterFields;
+      return {needModifyFields:mirrorFilterFields,allAffectFields:curRefFields};
     }
-    return undefined;
+    return {needModifyFields:undefined,allAffectFields:undefined};
   }
 
   private async findSelfAllAffectFields(curRefFields: string[], dstId: string) {
