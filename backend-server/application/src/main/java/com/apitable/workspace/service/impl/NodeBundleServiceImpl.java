@@ -322,7 +322,7 @@ public class NodeBundleServiceImpl implements NodeBundleService {
 
     private void processNode(Long userId, String spaceId, String parentId, String preNodeId, NodeFileTree node, List<NodeEntity> nodeList, Map<String, String> newNodeIdMap, Map<String, List<DataSheetCreateRo>> fileNameToNodeMap) {
         boolean isDst = node.getType() == NodeType.DATASHEET.getNodeType();
-        String nodeId =.getNodeId();// isDst ? IdUtil.createDstId() : IdUtil.createNodeId();
+        String nodeId =node.getNodeId();// isDst ? IdUtil.createDstId() : IdUtil.createNodeId();
         NodeEntity nodeEntity = NodeEntity.builder()
                 .id(IdWorker.getId())
                 .isTemplate(false)
