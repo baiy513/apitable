@@ -50,7 +50,9 @@ export class DatasheetCacheToDbService{
    */
   @Span()
   async  cacheFilterToDatabase(dstId: string,recordIds:string[],changedFields:string[]) {
-     await this.internalCacheFilterToDatabase(dstId,recordIds,changedFields);
+     const globalTraceMap:Map<string,Object>=new Map<string, Object>();
+     await this.internalCacheFilterToDatabase(dstId,recordIds,changedFields,globalTraceMap);
+    this.logger.info('cacheFilterToDatabase globalTraceMap', globalTraceMap);
   }
 
   /**
@@ -58,10 +60,11 @@ export class DatasheetCacheToDbService{
    * the difficult is to find affect datasheet recursive and the efficent
    */
   @Span()
-  async  internalCacheFilterToDatabase(dstId: string,recordIds:string[],affectFields:string[]) {
+  async  internalCacheFilterToDatabase(dstId: string,recordIds:string[],affectFields:string[],parentMap:Map<string,Object>) {
 
     this.logger.info("start cacheFilterToDatabase dstId:${dstId} affectFields:${affectFields}");
-
+    const traceMap:Map<string,Object>=new Map<string, Object>();
+    parentMap.set(dstId,traceMap);
     //if(dstToFieldMap.size>0&&dstToFieldMap.get(dstId)) {
     const {needModifyFields,allAffectFields}= await this.getNeedModifyFields(affectFields, dstId);
 
@@ -70,15 +73,16 @@ export class DatasheetCacheToDbService{
       this.logger.info("start cacheFilterToDatabase dstId:${dstId} mirrorFilterFields:${mirrorFilterFields}");
 
       await this.updateDataBase(dstId, recordIds, needModifyFields);
-
+      traceMap.set("updateDataBase",[recordIds,needModifyFields])
     }
     if (allAffectFields&&allAffectFields.length > 0) {//find need cac and cached field
-
-      await this.dealCacheParent(allAffectFields, dstId, recordIds);
+      traceMap.set("allAffectFields",allAffectFields)
+      await this.dealCacheParent(allAffectFields, dstId, recordIds,traceMap);
     }
   }
 
-  private async dealCacheParent(affectFields: string[], dstId: string, recordIds: string[]) {
+  private async dealCacheParent(affectFields: string[], dstId: string, recordIds: string[],parentMap:Map<string,Object>) {
+
     const parentDstToFieldMap = await this.findParentDstFields(affectFields, dstId);
     for (const [refDstId, refFields] of parentDstToFieldMap) {//处理影响的父表一级引用表
 
@@ -93,11 +97,13 @@ export class DatasheetCacheToDbService{
           for (const [opLinkFieldId, linkFields] of linkLookupMap) {
             const foreignRids: string[] = [];
             for (const rid of recordIds) {
-              if (recordMap[rid] && recordMap[rid]?.data && recordMap[rid]?.data[opLinkFieldId])
-                foreignRids.push(recordMap![rid]!.data[opLinkFieldId]![0]);
+              if (recordMap[rid] && recordMap[rid]?.data && recordMap[rid]?.data[opLinkFieldId]) {
+                const rids = recordMap[rid]?.data[opLinkFieldId] as [];
+                foreignRids.push(...rids);
+              }
             }
             if (foreignRids.length > 0 && linkFields.length > 0) {
-              await this.internalCacheFilterToDatabase(refDstId, foreignRids, linkFields);
+              await this.internalCacheFilterToDatabase(refDstId, foreignRids, linkFields,parentMap);
             }
           }
         }
