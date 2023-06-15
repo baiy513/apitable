@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 PATH  := node_modules/.bin:$(PATH)
-SHELL := /bin/bash
+SHELL := /bin/sh
 
 ifndef UID
 UID := $(shell id -u)
