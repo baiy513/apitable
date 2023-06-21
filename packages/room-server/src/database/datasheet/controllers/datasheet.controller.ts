@@ -60,7 +60,8 @@ export class DatasheetController {
     @Query() query: DatasheetPackRo,
   ): Promise<DatasheetPackResponse | DatasheetPack> {
     // check if the user belongs to this space
-    const { userId } = await this.userService.getMe({ cookie });
+    const { userId} = await this.userService.getMe({ cookie });
+
     await this.nodeService.checkUserForNode(userId, dstId);
     return this.datasheetService.fetchDataPack(dstId, { cookie }, true, { recordIds: query.recordIds });
   }

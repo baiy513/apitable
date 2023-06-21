@@ -44,6 +44,7 @@ import { In } from 'typeorm';
 import { InjectLogger } from 'shared/common/decorators';
 import {buildConditions} from "../../utils/query.util";
 import { Logger } from 'winston';
+import {UnitInfo} from "../../interfaces";
 
 @Injectable()
 export class DatasheetRecordService {
@@ -55,14 +56,15 @@ export class DatasheetRecordService {
   ) {}
 
   @Span()
-  async getRecordsByDstId(dstId: string,options?:{filterInfo?:IFilterInfo}): Promise<IRecordMap> {
+  async getRecordsByDstId(dstId: string,options?:{filterInfo?:IFilterInfo,unitInfo?:UnitInfo}): Promise<IRecordMap> {
     if (options && options.filterInfo) {
       //const currentDate = new Date();
       //const pastDate = new Date(currentDate.getTime() - options!.pageNum*30 * 24 * 3600 * 1000);
-      this.logger.info("options.filterInfo " + JSON.stringify(options.filterInfo))
+      this.logger.info("options.filterInfo " + JSON.stringify(options.filterInfo)
+          +"options.unitInfo " + JSON.stringify(options.unitInfo))
       let build = this.recordRepo.createQueryBuilder('record')
           .where(' record.dst_id=:dstId and record.is_deleted=0', {dstId: dstId})
-      const sqlConditions = buildConditions(options.filterInfo)
+      const sqlConditions = buildConditions(options.filterInfo,options.unitInfo)
       if (sqlConditions && sqlConditions.sqlWhere) {
         sqlConditions.sqlWhere.forEach(where => {
           if (sqlConditions.sqlConjunction === FilterConjunction.And) {

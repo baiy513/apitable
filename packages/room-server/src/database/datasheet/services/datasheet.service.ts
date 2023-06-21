@@ -123,18 +123,32 @@ export class DatasheetService {
     const fetchDataPackProfiler = this.logger.startTimer();
 
     let filterInfo=undefined;
+    let unitInfo=undefined;
     if(options?.viewId) {
       const view = meta.views.find(view => view.id === options?.viewId);
       if (view) {
         view.columns.forEach(column => {//如果本身是隐藏的，并且没有被其他列引用，那么删掉
           if (column.hidden && meta && meta.fieldMap) {
-            const include = Object.values(meta.fieldMap).some(
+            let include = Object.values(meta.fieldMap).some(
                 (value) => {
                   if (value && value.property && value.property.expression)
                     return value.property.expression.includes(column.fieldId);
                   return false;
                 }
             );
+            if (!include&&view.filterInfo) {
+              include = view.filterInfo.conditions.some(
+                  (condition) => {
+                    if (condition &&condition.fieldId==column.fieldId)
+                      return true;
+                    const columInfo=meta.fieldMap[condition.fieldId];//公式情况先不考虑
+                    if (columInfo&&columInfo.property &&columInfo.property.expression
+                        &&columInfo.property.expression.includes(column.fieldId))
+                      return true;
+                    return false;
+                  }
+              );
+            }
             if (!include) {
               delete meta.fieldMap![column.fieldId];
             }
@@ -147,11 +161,29 @@ export class DatasheetService {
           return true;
         });
         filterInfo= view.filterInfo;
+        if(filterInfo) {
+          const {uuid, userId} = await this.userService.getMe(auth);
+          const [unit] = await this.userService.getUserInfo(node.spaceId, [uuid]);
+          if(unit) {
+          unit.userId = userId;
+          unitInfo = unit;
+          }
+          // const conditions = filterInfo.conditions;
+          //
+          // conditions.forEach(condition => {
+          //   if(condition.fieldType==FieldType.LookUp){
+          //    if(meta.fieldMap[condition.fieldId]){
+          //      condition
+          //    }
+          //   }
+          // });
+        }
+
       }
     }
     const recordMap = options?.recordIds
         ? await this.datasheetRecordService.getRecordsByDstIdAndRecordIds(dstId, options?.recordIds)
-        : await this.datasheetRecordService.getRecordsByDstId(dstId,{filterInfo:filterInfo});
+        : await this.datasheetRecordService.getRecordsByDstId(dstId,{filterInfo:filterInfo,unitInfo:unitInfo});
     fetchDataPackProfiler.done({ message: `fetchDataPackProfiler ${dstId} done` });
 
     // Query foreignDatasheetMap and unitMap
