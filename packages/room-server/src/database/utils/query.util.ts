@@ -54,10 +54,12 @@ function buildCondition(
     const numParam={};
     const likeParam={};
 
-    if(filterValue=="Self"&&unitInfo){
+    if(filterValue=="Self"&&unitInfo){//lookup时比较难处理
         if(operatorField){
             filterValue=unitInfo.userId;
         }else if(fieldType==FieldType.Member){
+            filterValue=unitInfo.unitId;
+        }else{
             filterValue=unitInfo.unitId;
         }
     }
