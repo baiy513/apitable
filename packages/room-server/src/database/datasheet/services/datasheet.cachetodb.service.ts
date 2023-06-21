@@ -209,8 +209,12 @@ export class DatasheetCacheToDbService{
       const cellData = [];
       for (const fid of mirrorFilterFields) {
         const {cellValue} = calcCellValueAndString({state:state, snapshot:recordSnapShot,recordId:rid, fieldId:fid});
-        if(cellValue&&cellValue.length==1)
-          cellData.push({fieldId: fid, data: cellValue[0]})
+        if(cellValue&&cellValue.length==1){
+          if(cellValue[0] instanceof Number)
+            cellData.push({fieldId: fid, data: cellValue[0]})
+          else
+            cellData.push({fieldId: fid, data: [{"text": cellValue[0], "type": 1}]})
+        }
         else
           cellData.push({fieldId: fid, data: cellValue})
       }
