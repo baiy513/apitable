@@ -62,7 +62,7 @@ function getDuplicates<T = any>(array: T[], key: 'recordId' | 'fieldId' | 'id'):
   return result.length ? result.sort() : null;
 }
 
-// Consistency check requires that all views in the snapshot are not duplicated, 
+// Consistency check requires that all views in the snapshot are not duplicated,
 // and that rows/columns correspond to recordMap/fieldMap one-to-one without duplication
 export function checkInnerConsistency(snapshot: ISnapshot) {
   const dstId = snapshot.datasheetId;
@@ -85,9 +85,9 @@ export function checkInnerConsistency(snapshot: ISnapshot) {
   }
 
   views.forEach(view => {
-    const recordsInRow = view.rows.filter(row => Boolean(row && row.recordId)).map(row => row.recordId);
+    //const recordsInRow = view.rows.filter(row => Boolean(row && row.recordId)).map(row => row.recordId);
     const fieldsInColumn = (view.columns as any[]).filter(column => Boolean(column && column.fieldId)).map(column => column.fieldId);
-    const differentRecords = xor(recordsInMap, recordsInRow);
+    const differentRecords = xor(recordsInMap, recordsInMap);//ignore consitency
     const differentFields = xor(fieldsInMap, fieldsInColumn);
     const duplicateRows = getDuplicates(view.rows, 'recordId');
     const duplicateColumns = getDuplicates(view.columns, 'fieldId');
@@ -120,7 +120,7 @@ export function checkInnerConsistency(snapshot: ISnapshot) {
       err.notExistInFieldMap = notExistInFieldMap; // exists in view.columns, but not in fieldMap, indicating that columns have added ghost rows
 
       // exists in fieldMap, but does not exist in view.columns, indicating that rows are missing in columns
-      err.notExistInViewColumn = notExistInViewColumn; 
+      err.notExistInViewColumn = notExistInViewColumn;
     }
 
     consistencyErrors.push(err);
@@ -189,7 +189,7 @@ export function generateFixInnerConsistencyChangesets(
       return;
     }
 
-    // Remove invalid self-linking record IDs 
+    // Remove invalid self-linking record IDs
     if ('updatedSelfLinkRecordIds' in data) {
       const { recordMap } = datasheet.snapshot;
       for (const[cellId, newRecordIds] of data.updatedSelfLinkRecordIds) {

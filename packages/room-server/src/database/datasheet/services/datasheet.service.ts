@@ -160,6 +160,7 @@ export class DatasheetService {
           }
           return true;
         });
+        view.rows=[];//实验一把去掉rowid
         meta.views=[view];
         filterInfo= view.filterInfo;
         if(filterInfo) {

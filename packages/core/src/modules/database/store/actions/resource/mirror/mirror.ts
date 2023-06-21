@@ -121,7 +121,10 @@ const fetchSuccess = (
     const shareId = state.pageParams.shareId;
     const sourceDatasheetId = data.sourceInfo.datasheetId;
     const datasheet = getDatasheet(state, sourceDatasheetId);
-    if (!datasheet || datasheet.isPartOfData) {
+    let hasMirrorData=true;
+    if(datasheet&&datasheet.snapshot.meta.views.find(view=>view.id==data.sourceInfo.viewId))
+      hasMirrorData=false;
+    if (!hasMirrorData||!datasheet || datasheet.isPartOfData) {
       fetchMirrorDataPackApi(mirrorId, shareId, recordIds)
         .then(response => {
           return Promise.resolve({

@@ -1,7 +1,7 @@
 import {FieldType, FilterConjunction, FOperator, IFilterInfo} from "@apitable/core";
 import dayjs from "dayjs";
 import {UnitInfo} from "../interfaces";
-
+//目前支持者数字，文本，创建人，成员列，以及引用这些的列
 export function buildConditions(filterInfo: IFilterInfo,unitInfo?:UnitInfo):
     { sqlWhere: Array<{ sqlCondition: String|null, sqlParam: Object | null } >, sqlConjunction: FilterConjunction } {
     const conditions = filterInfo.conditions;
@@ -78,7 +78,7 @@ function buildCondition(
 
     switch (operator) {
         case FOperator.Is: {
-            if(filterValue instanceof Number)
+            if(fieldType==FieldType.Number)
                 return {sqlCondition: numField + " = :" + fieldId, sqlParam: numParam}
             if(operatorField){
                 return {sqlCondition: operatorField + " = :" + fieldId, sqlParam: txtParam}
@@ -88,7 +88,7 @@ function buildCondition(
             return {sqlCondition: txtField + " = :" + fieldId, sqlParam: txtParam}
         }
         case FOperator.IsNot: {
-            if(filterValue instanceof Number)
+            if(fieldType==FieldType.Number)
                 return {sqlCondition: numField + " != :" + fieldId, sqlParam: numParam}
             if(fieldType==FieldType.Member)
                 return {sqlCondition: memberField + " not like :" +fieldId, sqlParam: likeParam}
