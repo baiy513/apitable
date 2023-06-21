@@ -160,6 +160,7 @@ export class DatasheetService {
           }
           return true;
         });
+        meta.views=[view];
         filterInfo= view.filterInfo;
         if(filterInfo) {
           const {uuid, userId} = await this.userService.getMe(auth);
