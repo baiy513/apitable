@@ -322,6 +322,7 @@ export class OtService {
               }
             }
           }
+          this.logger.info('dataSheetCacheToDbService-cacheFilterToDatabase-', remoteChangeset);
           await this.dataSheetCacheToDbService.cacheFilterToDatabase(remoteChangeset.resourceId,rids,fids)
         }
       }
