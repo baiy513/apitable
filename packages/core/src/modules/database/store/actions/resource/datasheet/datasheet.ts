@@ -430,6 +430,13 @@ export function fetchDatasheetPackSuccess({ datasheetId, responseBody, dispatch,
       if (dst?.snapshot && !dst.isPartOfData && !forceFetch) {
         return;
       }
+      //恢复一下view.rows,rows是为了记录位置，但付出的代价太大了，先放弃这个特性
+      if(dst?.snapshot.meta.views){
+        const view=dst?.snapshot.meta.views[0];
+        const recordMap = dst?.snapshot.recordMap;
+        if(view&&view.rows.length<=0)
+          Object.keys(recordMap).forEach(recordId=>{view.rows.push({recordId:recordId,hidden:false})})
+      }
       dispatchActions.push(receiveDataPack(dataPack, { isPartOfData, getState }));
       if (dataPack.units) {
         // init unityMap, for `member` field use
