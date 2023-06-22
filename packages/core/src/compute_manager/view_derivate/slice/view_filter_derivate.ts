@@ -198,8 +198,8 @@ export class ViewFilterDerivate {
 
     // TODO: empty data filter, subsequent data repair should be able to delete
     const rows = view.rows.filter(row => recordMap[row.recordId]);//删除掉rows结构，不然严重影响性能
-    if(rows.length<=0)
-      Object.keys(recordMap).forEach(recordId=>{rows.push({recordId:recordId,hidden:false})})
+    //if(rows.length<=0)
+      //Object.keys(recordMap).forEach(recordId=>{rows.push({recordId:recordId,hidden:false})})
 
     const filterInfo = getFilterInfoExceptInvalid(this.state, this.datasheetId, view.filterInfo);
     const viewRows = this.getFilterRowsBase({ filterInfo, rows, recordMap });
