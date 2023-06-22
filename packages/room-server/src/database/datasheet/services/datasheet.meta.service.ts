@@ -76,6 +76,29 @@ export class DatasheetMetaService {
     return fieldIds;
   }
 
+  /**
+   * Query fieldIds through SQL, reduce memory footprint
+   *
+   * @param dstId datasheet ID
+   * @param filterFieldIds IDs of fields that will be filtered out
+   * @param fieldType include field type
+   * @author baiyx
+   * @date 2023/6/22 11:26 AM
+   */
+  async getFieldIdByDstIdType(dstId: string, fieldType:number): Promise<string[]> {
+    const raw = await this.repository.selectFieldMapByDstId(dstId);
+    const fieldIds: string[] = [];
+    if (raw && raw.fieldMap) {
+      for (const fieldId in raw.fieldMap) {
+        // sort key fields
+        if (fieldType==raw.fieldMap[fieldId]!.type) {
+          fieldIds.push(fieldId);
+        }
+      }
+    }
+    return fieldIds;
+  }
+
   async getRowsNumByDstId(dstId: string): Promise<number> {
     const result = await this.repository.countRowsByDstId(dstId);
     return result!.count;

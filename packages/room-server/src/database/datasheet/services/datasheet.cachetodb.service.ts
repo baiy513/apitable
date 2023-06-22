@@ -49,10 +49,15 @@ export class DatasheetCacheToDbService{
    * cache the filter value to database,to fast the filter,magic link not comp
    */
   @Span()
-  async  cacheFilterToDatabase(dstId: string,recordIds:string[],changedFields:string[]) {
+  async  cacheFilterToDatabase(dstId: string,recordIds:string[],changedFields:string[],insertFlag:boolean) {
      const globalTraceMap:Map<string,Object>=new Map<string, Object>();
+     if(insertFlag){//新增的情况把公式列也加入进来
+     const fieldIds=await this.datasheetMetaService.getFieldIdByDstIdType(dstId,FieldType.Formula);
+     if(fieldIds)
+        changedFields.push(...fieldIds);
+     }
      await this.internalCacheFilterToDatabase(dstId,recordIds,changedFields,globalTraceMap);
-    this.logger.info('cacheFilterToDatabase globalTraceMap', globalTraceMap);
+     this.logger.info('cacheFilterToDatabase globalTraceMap', globalTraceMap);
   }
 
   /**

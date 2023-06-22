@@ -311,19 +311,25 @@ export class OtService {
         if(remoteChangeset.operations){
           const rids=[];
           const fids=[];
+          let insertFlag=false;
           for(const operation of remoteChangeset.operations){
-            if(operation.actions&&operation){
+            if(operation&&operation.actions){
               for(const action of operation.actions){
-                if (action.p.length === 4 && action.p[0] === 'recordMap' && action.p[2] === 'data') {
+                if (action.p.length === 4 && action.p[0] === 'recordMap' && action.p[2] === 'data') {//更新
                   const recordId = action.p[1] as string;
                   rids.push(recordId);
                   fids.push(action.p[3] as string);
+                }else if (action.n=='OI'&&action.p.length === 2 && action.p[0] === 'recordMap') {//插入，更新和插入不会混合在一起
+                  const recordId = action.p[1] as string;
+                  rids.push(recordId);
+                  fids.push(...Object.keys(action.oi.data));
+                  insertFlag=true;
                 }
               }
             }
           }
           this.logger.info('dataSheetCacheToDbService-cacheFilterToDatabase-', remoteChangeset);
-          await this.dataSheetCacheToDbService.cacheFilterToDatabase(remoteChangeset.resourceId,rids,fids)
+          await this.dataSheetCacheToDbService.cacheFilterToDatabase(remoteChangeset.resourceId,rids,fids,insertFlag)
         }
       }
     }
