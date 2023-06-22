@@ -168,6 +168,6 @@ export class DatasheetController {
   //http://139.224.26.106:3333/nest/v1/cacheFilterToDatabase/dstvrbdvcTw5ayVHPa/recx5tqfSIvSZ/fldngDQJThvtg
   @Get(['cachefiltertodatabase/:dstId/:recordId/:fieldId'])
   async cachefiltertodatabase(@Param('dstId') dstId: string,@Param('recordId') recordId: string,@Param('fieldId') fieldId: string) {
-    await this.datasheetCacheToDbService.cacheFilterToDatabase(dstId, [recordId],[fieldId]);
+    await this.datasheetCacheToDbService.cacheFilterToDatabase(dstId, [recordId],[fieldId],false);
   }
 }
