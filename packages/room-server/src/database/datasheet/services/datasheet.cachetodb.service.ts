@@ -230,6 +230,36 @@ export class DatasheetCacheToDbService{
       this.logger.info("cacheFilterToDatabase" + result.affected)
     }
   }
+  async getCellValue(dstId: string, recordIds: string[], mirrorFilterFields: string[]):Promise<string|undefined> {
+    const resource: Map<string, string[]> = new Map<string, string[]>();
+    resource.set(dstId, recordIds);
+    const resourceFields: Map<string, string[]> = new Map<string, string[]>();
+    resourceFields.set(dstId, mirrorFilterFields);
+    const state = await this.makeState(resource,resourceFields);//get data pack
+    const snapshot = state.datasheetMap[dstId]?.datasheet?.snapshot;
+    const recordSnapShot = {
+      meta: {fieldMap: snapshot!.meta.fieldMap},
+      recordMap: snapshot!.recordMap,
+      datasheetId: dstId
+    }
+    for (const rid of recordIds) {
+      for (const fid of mirrorFilterFields) {
+        const {cellValue} = calcCellValueAndString({
+          state: state,
+          snapshot: recordSnapShot,
+          recordId: rid,
+          fieldId: fid
+        });
+        return cellValue;
+      }
+      this.logger.info("start cacheFilterToDatabase  dstId:${dstId} cellData :${cellData}");
+      // const result = await this.datasheetRecordService.updateCell(dstId, rid, cellData);
+      // this.logger.info("cacheFilterToDatabase" + result.affected)
+    }
+    return ;
+  }
+
+
 
   private  findSelfLinkField(refFields: string[], metaData: IMeta):Map<string, string[]> {
 

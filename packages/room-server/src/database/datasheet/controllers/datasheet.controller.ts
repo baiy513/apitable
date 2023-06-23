@@ -170,4 +170,8 @@ export class DatasheetController {
   async cachefiltertodatabase(@Param('dstId') dstId: string,@Param('recordId') recordId: string,@Param('fieldId') fieldId: string) {
     await this.datasheetCacheToDbService.cacheFilterToDatabase(dstId, [recordId],[fieldId],false);
   }
+  @Get(['getcellValue/:dstId/:recordId/:fieldId'])
+  async getcellValue(@Param('dstId') dstId: string,@Param('recordId') recordId: string,@Param('fieldId') fieldId: string) {
+    await this.datasheetCacheToDbService.getCellValue(dstId, [recordId],[fieldId]);
+  }
 }
