@@ -33,6 +33,7 @@ import { ComputeFieldReferenceManager } from './compute.field.reference.manager'
 import {calcCellValueAndString} from "@apitable/core/dist/modules/database/store/selectors/resource/datasheet/cell_calc";
 import {DatasheetService} from "./datasheet.service";
 import { CommandService } from 'database/command/services/command.service';
+import { mapToDictionary } from 'utils/query.util';
 @Injectable()
 export class DatasheetCacheToDbService{
   constructor(
@@ -57,7 +58,8 @@ export class DatasheetCacheToDbService{
         changedFields.push(...fieldIds);
      }
      await this.internalCacheFilterToDatabase(dstId,recordIds,changedFields,globalTraceMap);
-     this.logger.info('cacheFilterToDatabase globalTraceMap', globalTraceMap);
+     const mpObject=mapToDictionary(globalTraceMap);
+     this.logger.info('cacheFilterToDatabase globalTraceMap', mpObject);
   }
 
   /**

@@ -76,3 +76,24 @@ function buildCondition(
     }
 }
 
+export function mapToDictionary(map: Map<any, any>): { [key: string]: any } {
+    const dict = {};
+    for (const [k, v] of map.entries()) {
+        if (v instanceof Map) {
+            dict[k] = mapToDictionary(v);
+        } else {
+            dict[k] = v;
+        }
+    }
+    return dict;
+}
+//
+// const myMap = new Map([
+//     ['a', new Map([['b', 1], ['c', 2]])],
+// ['d', new Map([['e', 3], ['f', 4]])]
+// ]);
+//
+// const dict = mapToDictionary(myMap);
+// const jsonString = JSON.stringify(dict, null, 2);
+//
+// console.log(jsonString);
