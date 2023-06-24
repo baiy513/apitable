@@ -250,7 +250,7 @@ export class DatasheetCacheToDbService{
           recordId: rid,
           fieldId: fid
         });
-        return "hello-"+cellValue;
+        return "hello:"+cellValue+" stat:"+JSON.stringify(state);
       }
       this.logger.info("start cacheFilterToDatabase  dstId:${dstId} cellData :${cellData}");
       // const result = await this.datasheetRecordService.updateCell(dstId, rid, cellData);
