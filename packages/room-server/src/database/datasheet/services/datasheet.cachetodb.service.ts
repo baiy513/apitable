@@ -244,7 +244,7 @@ export class DatasheetCacheToDbService{
     }
     for (const rid of recordIds) {
       for (const fid of mirrorFilterFields) {
-        const {cellValue} = Selectors.getCellValue(state, recordSnapShot, rid, fid);
+        const cellValue = Selectors.getCellValue(state, recordSnapShot, rid, fid);
         return "hello:"+cellValue+" flduJduOKJm9F:"+recordSnapShot?.recordMap[rid]?.data["flduJduOKJm9F"];
       }
       this.logger.info("start cacheFilterToDatabase  dstId:${dstId} cellData :${cellData}");
