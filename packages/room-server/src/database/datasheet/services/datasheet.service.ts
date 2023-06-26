@@ -130,9 +130,12 @@ export class DatasheetService {
         view.columns.forEach(column => {//如果本身是隐藏的，并且没有被其他列引用，那么删掉
           if (column.hidden && meta && meta.fieldMap) {
             let include = Object.values(meta.fieldMap).some(
-                (value) => {
-                  if (value && value.property && value.property.expression)
-                    return value.property.expression.includes(column.fieldId);
+                (field) => {
+                  if (field && field.property && field.property.expression)
+                    return field.property.expression.includes(column.fieldId);
+
+                  return field&&field.property&&field.property.relatedLinkFieldId==column.fieldId;
+
                   return false;
                 }
             );
