@@ -127,28 +127,25 @@ export class DatasheetService {
     if(options?.viewId) {
       const view = meta.views.find(view => view.id === options?.viewId);
       if (view) {
+        const visibleColumMap={};
+        view.columns.forEach(column => {
+          visibleColumMap[column.fieldId]=column.hidden;
+        });
         view.columns.forEach(column => {//如果本身是隐藏的，并且没有被其他列引用，那么删掉
           if (column.hidden && meta && meta.fieldMap) {
-            let include = Object.values(meta.fieldMap).some(
-                (field) => {
-                  if (field && field.property && field.property.expression)
-                    return field.property.expression.includes(column.fieldId);
-
-                  return field&&field.property&&field.property.relatedLinkFieldId==column.fieldId;
-
-                  return false;
+            const parentFields=this.findAllParentFields(column.fieldId,meta.fieldMap);
+            let include = parentFields.some(
+                (fieldId) => {
+                  return visibleColumMap[fieldId];
                 }
             );
             if (!include&&view.filterInfo) {
               include = view.filterInfo.conditions.some(
                   (condition) => {
-                    if (condition &&condition.fieldId==column.fieldId)
+                    if( condition.fieldId==column.fieldId)
                       return true;
-                    const columInfo=meta.fieldMap[condition.fieldId];//公式情况先不考虑
-                    if (columInfo&&columInfo.property &&columInfo.property.expression
-                        &&columInfo.property.expression.includes(column.fieldId))
-                      return true;
-                    return false;
+                    else
+                      return parentFields.includes(condition.fieldId);
                   }
               );
             }
@@ -209,6 +206,27 @@ export class DatasheetService {
       units: combine.units as (UserInfo | UnitInfo)[],
       fieldPermissionMap: options?.isTemplate ? undefined : fieldPermissionMap,
     };
+  }
+  private  findAllParentFields(fieldId: string,fieldMap:IFieldMap):string[] {
+    let newRefids= [fieldId];
+    let curRefFields:string[]=[];
+    while (newRefids.length > 0) {//找出多级间接引用
+      const nextRefids: string[] = [];
+      for (const fid of newRefids) {
+        Object.values(fieldMap).forEach(
+            (field) => {
+              if (field && field.property && field.property.expression&&field.property.expression.includes(fid))
+                nextRefids.push(field.id);
+              if (field&&field.property&&field.property.relatedLinkFieldId==fid){
+                nextRefids.push(field.id)
+              }
+            }
+        );
+      }
+      newRefids = nextRefids;
+      curRefFields=[...curRefFields,...nextRefids];
+    }
+    return curRefFields;
   }
 
   /**
