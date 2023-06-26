@@ -17,9 +17,11 @@
  */
 
 import {
+  CacheManager,
   FieldType, IEventResourceMap, ILinkField, ILookUpField, ILookUpProperty,
   IMeta, IReduxState, IServerDatasheetPack, Selectors,
 } from '@apitable/core';
+
 import { Span } from '@metinseylan/nestjs-opentelemetry';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 
@@ -229,6 +231,7 @@ export class DatasheetCacheToDbService{
       const result = await this.datasheetRecordService.updateCell(dstId, rid, cellData);
       this.logger.info("cacheFilterToDatabase" + result.affected)
     }
+    CacheManager.clear();
   }
   async getCellValue(dstId: string, recordIds: string[], mirrorFilterFields: string[]):Promise<string|undefined> {
     const resource: Map<string, string[]> = new Map<string, string[]>();
@@ -251,6 +254,7 @@ export class DatasheetCacheToDbService{
       // const result = await this.datasheetRecordService.updateCell(dstId, rid, cellData);
       // this.logger.info("cacheFilterToDatabase" + result.affected)
     }
+    CacheManager.clear();
     return "hello";
   }
 
