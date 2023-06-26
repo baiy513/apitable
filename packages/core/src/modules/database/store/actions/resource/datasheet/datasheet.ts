@@ -431,9 +431,9 @@ export function fetchDatasheetPackSuccess({ datasheetId, responseBody, dispatch,
         return;
       }
       //恢复一下view.rows,rows是为了记录位置，但付出的代价太大了，先放弃这个特性
-      if(dst?.snapshot.meta.views){
-        const view=dst?.snapshot.meta.views[0];
-        const recordMap = dst?.snapshot.recordMap;
+      if(dataPack.snapshot?.meta.views){
+        const view=dataPack.snapshot.meta.views[0];
+        const recordMap = dataPack.snapshot.recordMap;
         if(view&&view.rows.length<=0)
           Object.keys(recordMap).forEach(recordId=>{view.rows.push({recordId:recordId,hidden:false})})
       }
