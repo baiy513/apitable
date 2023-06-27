@@ -129,7 +129,10 @@ export class DatasheetService {
       if (view) {
         const visibleColumMap={};
         view.columns.forEach(column => {
-          visibleColumMap[column.fieldId]=column.hidden;
+          if(column.hidden==false)
+            visibleColumMap[column.fieldId]=false;
+          else
+            visibleColumMap[column.fieldId]=true;//undefind true
         });
         view.columns.forEach(column => {//如果本身是隐藏的，并且没有被其他列引用，那么删掉
           if (column.hidden && meta && meta.fieldMap) {
