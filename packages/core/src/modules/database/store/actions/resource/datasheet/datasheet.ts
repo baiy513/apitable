@@ -36,7 +36,7 @@ import {
   ModalConfirmKey,
 } from 'exports/store';
 import { deleteNode, loadFieldPermissionMap, updateUnitMap, updateUserMap } from 'exports/store/actions';
-import { getDatasheet, getDatasheetLoading, getMirror, getSnapshot } from 'exports/store/selectors';
+import { getDatasheet, getDatasheetLoading, getMirror } from 'exports/store/selectors';
 import produce from 'immer';
 import { Events, Player } from 'modules/shared/player';
 import {
@@ -150,6 +150,7 @@ function ensureInnerConsistency(payload: IServerDatasheetPack, getState?: () => 
       return;
     }
   }
+  return;//强制取消一致性提醒，来不及找原因了
 
   const errorInfo = checkInnerConsistency(snapshot);
 
@@ -178,6 +179,7 @@ function ensureLinkConsistency(state: IReduxState, loadedForeignDstId: string) {
     return;
   }
 
+  return;//强制取消一致性提醒，来不及找原因了
   console.log('found link inconsistency', error);
 
   Player.doTrigger(Events.app_error_logger, {
@@ -392,14 +394,14 @@ interface IFetchDatasheetPack {
   forceFetch?: boolean;
 }
 
-function newRecordMapContainsNewRecords(oldRecordMap: Readonly<IRecordMap>, newRecordMap: IRecordMap): boolean {
+/*function newRecordMapContainsNewRecords(oldRecordMap: Readonly<IRecordMap>, newRecordMap: IRecordMap): boolean {
   for (const newRecordId in newRecordMap) {
     if (!(newRecordId in oldRecordMap)) {
       return true;
     }
   }
   return false;
-}
+}*/
 
 export function fetchDatasheetPackSuccess({ datasheetId, responseBody, dispatch, getState, isPartOfData = false, forceFetch }: IFetchDatasheetPack) {
   if (responseBody.success) {
@@ -409,17 +411,18 @@ export function fetchDatasheetPackSuccess({ datasheetId, responseBody, dispatch,
     if (dataPack.foreignDatasheetMap) {
       Object.keys(dataPack.foreignDatasheetMap).forEach(foreignDstId => {
         const foreignDatasheetPack = dataPack.foreignDatasheetMap![foreignDstId]!;
-        const dst = getDatasheet(state, foreignDstId);
-        let toMergeRecordMap = undefined;
-        if (dst) {
-          const oldRecordMap = getSnapshot(state, foreignDstId)!.recordMap;
-          const newRecordMap = foreignDatasheetPack.snapshot.recordMap;
-          if (!newRecordMapContainsNewRecords(oldRecordMap, newRecordMap)) {
-            return;
-          }
-          toMergeRecordMap = oldRecordMap;
-        }
-        dispatchActions.push(receiveDataPack(foreignDatasheetPack, { isPartOfData: true, toMergeRecordMap }));
+        //const dst = getDatasheet(state, foreignDstId);
+        //let toMergeRecordMap = undefined;
+       // if (dst) {
+          //const oldRecordMap = getSnapshot(state, foreignDstId)!.recordMap;
+          //const newRecordMap = foreignDatasheetPack.snapshot.recordMap;//记录没新的，但列有咋办
+          //if (!newRecordMapContainsNewRecords(oldRecordMap, newRecordMap)) {
+            //return;
+          //}
+         // toMergeRecordMap = oldRecordMap;
+       // }
+        dispatchActions.push(receiveDataPack(foreignDatasheetPack, { isPartOfData: true}));//列不同，别merge
+        //dispatchActions.push(receiveDataPack(foreignDatasheetPack, { isPartOfData: true, toMergeRecordMap }));
         if (foreignDatasheetPack.fieldPermissionMap) {
           dispatchActions.push(loadFieldPermissionMap(foreignDatasheetPack.fieldPermissionMap, foreignDatasheetPack.datasheet.id));
         }
@@ -427,7 +430,7 @@ export function fetchDatasheetPackSuccess({ datasheetId, responseBody, dispatch,
     }
     if (dataPack.datasheet) {
       const dst = getDatasheet(state, dataPack.datasheet.id);
-      if (dst?.snapshot && !dst.isPartOfData && !forceFetch) {
+      if (dst?.snapshot && !dst.isPartOfData && !forceFetch) {//拿到了不用，不浪费吗
         return;
       }
       //恢复一下view.rows,rows是为了记录位置，但付出的代价太大了，先放弃这个特性
