@@ -96,11 +96,11 @@ export const MirrorRoute = () => {
       }}
     </AutoSizer>;
   }
-
+  //mirror的时候只有一个视图，所以注释掉
   // The source datasheet is not deleted, the mirror node is not deleted, but the view from which the source datasheet generates the mirror is deleted
-  if (sourceDatasheet && !sourceDatasheet.snapshot.meta.views.find(item => item.id === mirrorSourceInfo?.viewId)) {
-    return <NoPermission desc={t(Strings.mirror_resource_view_been_deleted)} />;
-  }
+  //if (sourceDatasheet && !sourceDatasheet.snapshot.meta.views.find(item => item.id === mirrorSourceInfo?.viewId)) {
+    //return <NoPermission desc={t(Strings.mirror_resource_view_been_deleted)} />;
+  //}
 
   return <Mirror mirror={mirror} />;
 };
