@@ -174,4 +174,9 @@ export class DatasheetController {
   async getcellValue(@Param('dstId') dstId: string,@Param('recordId') recordId: string,@Param('fieldId') fieldId: string):Promise<string|undefined> {
    return  await this.datasheetCacheToDbService.getCellValue(dstId, [recordId],[fieldId]);
   }
+
+  @Get(['cachedatasheet/:dstId'])
+  async cacheDataSheet(@Param('dstId') dstId: string) {
+      await this.datasheetCacheToDbService.cacheDataSheet(dstId);
+  }
 }

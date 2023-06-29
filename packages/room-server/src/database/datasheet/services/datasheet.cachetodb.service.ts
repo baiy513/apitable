@@ -292,4 +292,46 @@ export class DatasheetCacheToDbService{
     this.logger.debug('datasheetPacks', datasheetPacks);
     return this.commandService.fillTinyStore(datasheetPacks).getState();
   }
+  @Span()
+   async cacheDataSheet(dstId: string) {
+
+    this.logger.info("start cacheDataSheet "+dstId);
+    const metaData = await this.datasheetMetaService.getMetaDataByDstId(dstId);
+    const  {needModifyFields} =await this.getNeedModifyFields(Object.keys(metaData.fieldMap),dstId);
+
+    if(!needModifyFields) return;
+    const resource: Map<string, string[]> = new Map<string, string[]>();
+    resource.set(dstId, []);
+    const resourceFields: Map<string, string[]> = new Map<string, string[]>();
+    resourceFields.set(dstId, needModifyFields!);
+    const state = await this.makeState(resource,resourceFields);//get data pack
+    const snapshot = state.datasheetMap[dstId]?.datasheet?.snapshot;
+    const recordSnapShot = {
+      meta: {fieldMap: snapshot!.meta.fieldMap},
+      recordMap: snapshot!.recordMap,
+      datasheetId: dstId
+    }
+    let count=0;
+    const rids=Object.keys(recordSnapShot.recordMap);
+    this.logger.info("start cacheDataSheet "+dstId+" get records"+rids.length);
+    for (const rid in rids) {
+      const cellData = [];
+      count++;
+      for (const fid of needModifyFields) {
+        const {cellValue} = calcCellValueAndString({state:state, snapshot:recordSnapShot,recordId:rid, fieldId:fid});
+        if(cellValue&&cellValue.length==1){
+          if(cellValue[0] instanceof Number)
+            cellData.push({fieldId: fid, data: cellValue[0]})
+          else
+            cellData.push({fieldId: fid, data: [{"text": cellValue[0], "type": 1}]})
+        }
+        else
+          cellData.push({fieldId: fid, data: cellValue})
+      }
+      this.logger.info("start cacheFilterToDatabase  dstId:"+JSON.stringify(dstId)+" cellData: "+JSON.stringify(cellData));
+      const result = await this.datasheetRecordService.updateCell(dstId, rid, cellData);
+      this.logger.info("cacheFilterToDatabase" + result.affected+" totalCount:"+count)
+    }
+    CacheManager.clear();
+  }
 }

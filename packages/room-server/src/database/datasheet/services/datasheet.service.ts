@@ -484,7 +484,11 @@ export class DatasheetService {
       // Influenced recordsIds of the events
       const recordIds = resourceMap.get(dstId)!;
       // recordMap of current datasheet
-      let recordMap = await this.datasheetRecordService.getRecordsByDstIdAndRecordIds(dstId, recordIds);
+      let recordMap:IRecordMap;
+      if(recordIds&&recordIds.length>0)
+        recordMap = await this.datasheetRecordService.getRecordsByDstIdAndRecordIds(dstId, recordIds);
+      else
+        recordMap = await this.datasheetRecordService.getRecordsByDstId(dstId);
 
       // Check if self-linking exists, if so, extend recordIds
       const fieldMap = meta.fieldMap;
