@@ -205,8 +205,10 @@ export class DatasheetCacheToDbService{
   private async updateDataBase(dstId: string, recordIds: string[], mirrorFilterFields: string[]) {
     const resource: Map<string, string[]> = new Map<string, string[]>();
     resource.set(dstId, recordIds);
+    const updateFields = [...new Set(mirrorFilterFields)]
+
     const resourceFields: Map<string, string[]> = new Map<string, string[]>();
-    resourceFields.set(dstId, mirrorFilterFields);
+    resourceFields.set(dstId, updateFields);
     const state = await this.makeState(resource,resourceFields);//get data pack
     const snapshot = state.datasheetMap[dstId]?.datasheet?.snapshot;
     const recordSnapShot = {
@@ -214,9 +216,10 @@ export class DatasheetCacheToDbService{
       recordMap: snapshot!.recordMap,
       datasheetId: dstId
     }
+
     for (const rid of recordIds) {
       const cellData = [];
-      for (const fid of mirrorFilterFields) {
+      for (const fid of updateFields) {
         const {cellValue} = calcCellValueAndString({state:state, snapshot:recordSnapShot,recordId:rid, fieldId:fid});
         if(cellValue&&cellValue.length==1){
           if(cellValue[0] instanceof Number)
@@ -299,8 +302,21 @@ export class DatasheetCacheToDbService{
     const metaData = await this.datasheetMetaService.getMetaDataByDstId(dstId);
     const  {needModifyFields} =await this.getNeedModifyFields(Object.keys(metaData.fieldMap),dstId);
 
+
+
     if(!needModifyFields) return;
-    const updateFields = [...new Set(needModifyFields)]
+    const updateFields:string[]=[];
+    for(const fieldId of needModifyFields){
+      if(metaData.fieldMap&&metaData.fieldMap[fieldId]){
+        if(metaData.fieldMap[fieldId]!.type==FieldType.LookUp|| metaData.fieldMap[fieldId]!.type==FieldType.Formula){
+          if(!updateFields.includes(fieldId)){
+            updateFields.push(fieldId);
+          }
+        }
+      }
+
+    }
+    //const updateFields = [...new Set(needModifyFields)]
 
     const resource: Map<string, string[]> = new Map<string, string[]>();
     resource.set(dstId, []);
@@ -320,7 +336,7 @@ export class DatasheetCacheToDbService{
     for (const rid of rids) {
       const cellData = [];
       count++;
-      for (const fid of needModifyFields) {
+      for (const fid of updateFields) {
         const {cellValue} = calcCellValueAndString({state:state, snapshot:recordSnapShot,recordId:rid, fieldId:fid});
         if(cellValue&&cellValue.length==1){
           if(cellValue[0] instanceof Number)
