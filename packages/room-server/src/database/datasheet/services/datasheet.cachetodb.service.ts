@@ -300,10 +300,12 @@ export class DatasheetCacheToDbService{
     const  {needModifyFields} =await this.getNeedModifyFields(Object.keys(metaData.fieldMap),dstId);
 
     if(!needModifyFields) return;
+    const updateFields = [...new Set(needModifyFields)]
+
     const resource: Map<string, string[]> = new Map<string, string[]>();
     resource.set(dstId, []);
     const resourceFields: Map<string, string[]> = new Map<string, string[]>();
-    resourceFields.set(dstId, needModifyFields!);
+    resourceFields.set(dstId, updateFields!);
     const state = await this.makeState(resource,resourceFields);//get data pack
     const snapshot = state.datasheetMap[dstId]?.datasheet?.snapshot;
     const recordSnapShot = {
@@ -314,7 +316,8 @@ export class DatasheetCacheToDbService{
     let count=0;
     const rids=Object.keys(recordSnapShot.recordMap);
     this.logger.info("start cacheDataSheet "+dstId+" get records"+rids.length);
-    for (const rid in rids) {
+
+    for (const rid of rids) {
       const cellData = [];
       count++;
       for (const fid of needModifyFields) {
@@ -328,7 +331,7 @@ export class DatasheetCacheToDbService{
         else
           cellData.push({fieldId: fid, data: cellValue})
       }
-      this.logger.info("start cacheFilterToDatabase  dstId:"+JSON.stringify(dstId)+" cellData: "+JSON.stringify(cellData));
+      this.logger.info("start cacheFilterToDatabase  dstId:"+JSON.stringify(dstId)+" rid:"+rid+" cellData: "+JSON.stringify(cellData));
       const result = await this.datasheetRecordService.updateCell(dstId, rid, cellData);
       this.logger.info("cacheFilterToDatabase" + result.affected+" totalCount:"+count)
     }
