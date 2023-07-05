@@ -14,4 +14,4 @@ WORKDIR /app
 
 COPY --from=builder /app/application/build/libs/*.jar /app/app.jar
 EXPOSE 8081
-CMD ["java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=localhost:5005", "-jar", "/app/app.jar"]
+CMD ["java", "-agentlib:jdwp=transport=dt_socket,server=n,suspend=y,address=localhost:5005", "-jar", "/app/app.jar"]
