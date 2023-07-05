@@ -36,9 +36,6 @@ services:
       - TZ=${TIMEZONE}
     networks:
       - apitable
-    depends_on:
-      init-db:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "curl -sS 'http://localhost:8081' || exit 1"]
       interval: 5s
