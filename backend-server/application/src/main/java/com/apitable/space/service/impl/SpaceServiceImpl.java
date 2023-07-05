@@ -910,7 +910,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, SpaceEntity>
      */
     @Override
     public void checkMemberInSpace(final String spaceId, final Long memberId) {
-        log.info("checks whether the specified member is in space");
+        log.info("checks whether the specified member is in space memberId:"+memberId+" spaceId:"+spaceId);
         MemberEntity member =
             memberMapper.selectMemberIdAndSpaceId(spaceId, memberId);
         ExceptionUtil.isNotNull(member, MEMBER_NOT_IN_SPACE);
